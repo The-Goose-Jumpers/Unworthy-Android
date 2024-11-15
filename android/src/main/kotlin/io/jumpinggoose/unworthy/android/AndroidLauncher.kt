@@ -12,6 +12,10 @@ class AndroidLauncher : AndroidApplication() {
         initialize(UnworthyApp(), AndroidApplicationConfiguration().apply {
             useImmersiveMode = true
             renderUnderCutout = true
+            useGyroscope = true
+            useAccelerometer = false
+            useCompass = false
+            useGL30 = true
         })
     }
 }

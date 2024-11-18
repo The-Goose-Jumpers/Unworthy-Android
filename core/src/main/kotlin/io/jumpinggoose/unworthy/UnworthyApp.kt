@@ -1,6 +1,7 @@
 package io.jumpinggoose.unworthy
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import io.jumpinggoose.unworthy.scenes.MainMenu
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
 import ktx.async.KtxAsync

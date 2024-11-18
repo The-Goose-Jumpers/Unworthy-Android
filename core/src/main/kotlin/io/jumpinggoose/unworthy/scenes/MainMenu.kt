@@ -1,4 +1,4 @@
-package io.jumpinggoose.unworthy
+package io.jumpinggoose.unworthy.scenes
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Peripheral
@@ -6,6 +6,11 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.FitViewport
+import io.jumpinggoose.unworthy.Constants
+import io.jumpinggoose.unworthy.utils.Sprite
+import io.jumpinggoose.unworthy.UnworthyApp
+import io.jumpinggoose.unworthy.gameobjects.Stars
+import io.jumpinggoose.unworthy.utils.setRelativePosition
 import ktx.app.KtxScreen
 import ktx.assets.disposeSafely
 import ktx.graphics.use
@@ -13,7 +18,7 @@ import ktx.math.*
 
 class MainMenu(private val game: UnworthyApp) : KtxScreen {
     private val camera = OrthographicCamera()
-    private val viewport = FitViewport(Constants.TARGET_WIDTH, Constants.TARGET_HEIGHT, camera)
+    private val viewport = FitViewport(Constants.TARGET_WIDTH.toFloat(), Constants.TARGET_HEIGHT.toFloat(), camera)
 
     private val titleSprite = Sprite("UI/title.png").apply {
         setOriginCenter()
@@ -31,11 +36,14 @@ class MainMenu(private val game: UnworthyApp) : KtxScreen {
         setRelativePosition(0.1f, 0.5f)
     }
 
-    val spriteObjects = listOf(titleSprite, characterSprite, startButtonSprite)
+    private val stars = Stars(Vector2(), Constants.TARGET_WIDTH, Constants.TARGET_HEIGHT)
+
+    val spriteObjects = listOf(titleSprite, startButtonSprite, characterSprite)
 
     val gyroscopeAvailable = Gdx.input.isPeripheralAvailable(Peripheral.Gyroscope)
 
     fun update(delta: Float) {
+        stars.update(delta)
         if (gyroscopeAvailable) {
             // Calculate target position based on gyroscope input
             val gyroscopeOffset = Vector2(Gdx.input.gyroscopeX * 150f, Gdx.input.gyroscopeY * 50f)
@@ -51,8 +59,9 @@ class MainMenu(private val game: UnworthyApp) : KtxScreen {
 
     fun draw() {
         game.batch.use(camera) {
+            stars.draw(it)
             spriteObjects.forEach { sprite ->
-                sprite.draw(game.batch)
+                sprite.draw(it)
             }
         }
     }

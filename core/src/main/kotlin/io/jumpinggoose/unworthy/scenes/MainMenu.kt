@@ -21,24 +21,22 @@ class MainMenu(private val game: UnworthyApp) : KtxScreen {
     private val viewport = FitViewport(Constants.TARGET_WIDTH.toFloat(), Constants.TARGET_HEIGHT.toFloat(), camera)
 
     private val titleSprite = Sprite("UI/title.png").apply {
-        setOriginCenter()
         setRelativePosition(0.3f, 0.75f)
     }
 
     private val characterSprite = Sprite("UI/character_fall.png").apply {
-        setOriginCenter()
         setRelativePosition(0.75f, 0.5f)
     }
     private val characterStartPosition = Vector2(characterSprite.x, characterSprite.y)
 
-    private val startButtonSprite = Sprite("UI/start_button.png").apply {
-        setOrigin(0f, 0f)
-        setRelativePosition(0.1f, 0.5f)
+    private val tapToBeginText = Sprite("UI/taptobegin.png").apply {
+        setRelativePosition(0.2f, 0.25f)
     }
+    var tapToBeginTextTime = 0f
 
     private val stars = Stars(Vector2(), Constants.TARGET_WIDTH, Constants.TARGET_HEIGHT)
 
-    val spriteObjects = listOf(titleSprite, startButtonSprite, characterSprite)
+    val spriteObjects = listOf(titleSprite, tapToBeginText, characterSprite)
 
     val gyroscopeAvailable = Gdx.input.isPeripheralAvailable(Peripheral.Gyroscope)
 
@@ -55,6 +53,9 @@ class MainMenu(private val game: UnworthyApp) : KtxScreen {
             val rotation = Gdx.input.gyroscopeZ * -10f
             characterSprite.rotation = MathUtils.lerp(characterSprite.rotation, rotation, 0.1f)
         }
+        // Slowly dim of the tap to begin text back and forth
+        tapToBeginTextTime += delta * 3
+        tapToBeginText.setAlpha(0.5f + (1f - 0.5f) * 0.5f * (1f + MathUtils.sin(tapToBeginTextTime)))
     }
 
     fun draw() {

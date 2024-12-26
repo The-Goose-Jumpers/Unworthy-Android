@@ -2,10 +2,12 @@ package io.jumpinggoose.unworthy.utils
 
 import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.Intersector
+import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Shape2D
 import com.badlogic.gdx.math.Vector2
-import io.jumpinggoose.unworthy.game.CompositeShape
+import io.jumpinggoose.unworthy.core.CompositeShape
+import java.lang.UnsupportedOperationException
 import kotlin.math.max
 import kotlin.math.min
 
@@ -23,25 +25,31 @@ fun Shape2D.overlaps(other: Shape2D): Boolean {
         this is CompositeShape && other is Rectangle -> this.overlaps(other)
         this is CompositeShape && other is Circle -> this.overlaps(other)
 
-        else -> throw IllegalArgumentException("Unsupported shape type: ${other::class}")
+        else -> throw UnsupportedOperationException("overlaps between ${this::class} and ${other::class}")
     }
 }
 
 fun Shape2D.getPenetrationVector(other: Shape2D): Vector2 {
     return when {
+        this is Rectangle && other is Rectangle -> penetrationVector(this, other)
+        this is Rectangle && other is Circle -> penetrationVector(this, other)
+        this is Rectangle && other is CompositeShape -> penetrationVector(this, other)
+
         this is Circle && other is Circle -> penetrationVector(this, other)
         this is Circle && other is Rectangle -> penetrationVector(this, other)
+        this is Circle && other is CompositeShape -> penetrationVector(this, other)
 
-        this is Rectangle && other is Rectangle -> penetrationVector(this, other)
-        this is Rectangle && other is Circle -> penetrationVector(other, this).scl(-1f)
+        this is CompositeShape && other is CompositeShape -> penetrationVector(this, other)
+        this is CompositeShape && other is Rectangle -> penetrationVector(this, other)
+        this is CompositeShape && other is Circle -> penetrationVector(this, other)
 
-        else -> throw IllegalArgumentException("Unsupported shape type: ${other::class}")
+        else -> throw UnsupportedOperationException("getPenetrationVector between ${this::class} and ${other::class}")
     }
 }
 
 private fun penetrationVector(circle1: Circle, circle2: Circle): Vector2 {
     if (!Intersector.overlaps(circle1, circle2)) {
-        return Vector2.Zero
+        return Vector2()
     }
 
     val displacement = Vector2(circle2.x - circle1.x, circle2.y - circle1.y)
@@ -59,7 +67,7 @@ private fun penetrationVector(circle1: Circle, circle2: Circle): Vector2 {
 private fun penetrationVector(rect1: Rectangle, rect2: Rectangle): Vector2 {
     val intersection = Rectangle()
     if (!Intersector.intersectRectangles(rect1, rect2, intersection)) {
-        return Vector2.Zero
+        return Vector2()
     }
 
     return if (intersection.width < intersection.height) {
@@ -98,6 +106,45 @@ private fun penetrationVector(circle: Circle, rectangle: Rectangle): Vector2 {
     } else {
         cToCollPoint.nor().scl(circle.radius).sub(cToCollPoint)
     }
+}
+
+private fun penetrationVector(rectangle: Rectangle, circle: Circle): Vector2 {
+    return penetrationVector(circle, rectangle).scl(-1f)
+}
+
+private fun penetrationVector(compositeShape: CompositeShape, shape: Shape2D): Vector2 {
+    var penetrationVector = Vector2()
+    compositeShape.shapes.forEach {
+        if (it.overlaps(shape)) {
+            penetrationVector.add(it.getPenetrationVector(shape))
+        }
+    }
+    return penetrationVector
+}
+
+private fun penetrationVector(shape: Shape2D, compositeShape: CompositeShape): Vector2 {
+    return penetrationVector(compositeShape, shape).scl(-1f)
+}
+
+private fun penetrationVector(compositeShape1: CompositeShape, compositeShape2: CompositeShape): Vector2 {
+    var penetrationVector = Vector2()
+    compositeShape1.shapes.forEach { shape1 ->
+        compositeShape2.shapes.forEach { shape2 ->
+            if (shape1.overlaps(shape2)) {
+                penetrationVector.add(shape1.getPenetrationVector(shape2))
+            }
+        }
+    }
+    return penetrationVector
+}
+
+fun Rectangle.getVertices(): List<Vector2> {
+    return listOf(
+        Vector2(x, y),
+        Vector2(x + width, y),
+        Vector2(x + width, y + height),
+        Vector2(x, y + height)
+    )
 }
 
 fun Rectangle.closestPointTo(point: Vector2): Vector2 {

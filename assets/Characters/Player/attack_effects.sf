@@ -1,0 +1,14 @@
+{
+  "textureAtlas": {
+    "texture": "Characters/Player/attack_effects.png",
+    "regionWidth": 319,
+    "regionHeight": 477
+  },
+  "cycles": {
+    "attack": {
+      "frames": [0,1,2,3],
+      "isLooping": false,
+      "frameDuration": 0.08333333
+    }
+  }
+}

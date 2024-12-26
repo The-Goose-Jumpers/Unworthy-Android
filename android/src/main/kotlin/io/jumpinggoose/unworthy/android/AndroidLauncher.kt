@@ -10,6 +10,7 @@ class AndroidLauncher : AndroidApplication() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initialize(UnworthyApp(), AndroidApplicationConfiguration().apply {
+            useWakelock = true
             useImmersiveMode = true
             renderUnderCutout = true
             useGyroscope = true

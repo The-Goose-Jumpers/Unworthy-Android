@@ -271,7 +271,7 @@ class Player(
     private fun playIdleAnimation(delta: Float) {
         idleAnimationTimer -= delta
         if (idleAnimationTimer <= 0) {
-            // playAnimation(Animation.IDLE)
+            playAnimation(Animation.IDLE)
             idleAnimationTimer = random.nextFloat(3f, 7.5f)
         } else {
             changeToStandingSprite()

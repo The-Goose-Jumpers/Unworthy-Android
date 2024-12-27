@@ -169,7 +169,7 @@ class Level(private val game: UnworthyApp) : Scene(game) {
 
     override fun draw() {
         super.draw()
-        if (Constants.DRAW_DEBUG) {
+        if (Constants.DEBUG) {
             game.batch.use(camera) {
                 boundaries.shapes.forEach{ bound ->
                     if (bound is Rectangle) {

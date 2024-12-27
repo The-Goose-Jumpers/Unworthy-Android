@@ -28,7 +28,9 @@ class UnworthyApp : KtxGame<Scene>(), KtxInputAdapter {
     override fun create() {
         KtxAsync.initiate()
 
-        Gdx.app.logLevel = Application.LOG_DEBUG
+        if (Constants.DEBUG) {
+            Gdx.app.logLevel = Application.LOG_DEBUG
+        }
 
         batch = SpriteBatch()
         assetStorage = AssetStorage()
@@ -46,7 +48,6 @@ class UnworthyApp : KtxGame<Scene>(), KtxInputAdapter {
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        Gdx.app.debug("Input", "Touched at $screenX, $screenY, pointer: $pointer, button: $button")
         return currentScene.touchUp(screenX, screenY, pointer, button)
     }
 

@@ -22,6 +22,18 @@ fun SpriteBatch.drawRectangle(rect: Rectangle, color: Color = Color.WHITE, thick
     DrawingHelper.drawRectangle(this, rect.x, rect.y, rect.width, rect.height, color, thickness)
 }
 
+fun SpriteBatch.fillCircle(x: Float, y: Float, radius: Float, color: Color = Color.WHITE) {
+    DrawingHelper.fillCircle(this, x, y, radius, color)
+}
+
+fun SpriteBatch.fillCircle(position: Vector2, radius: Float, color: Color = Color.WHITE) {
+    DrawingHelper.fillCircle(this, position.x, position.y, radius, color)
+}
+
+fun SpriteBatch.fillCircle(circle: Circle, color: Color = Color.WHITE) {
+    DrawingHelper.fillCircle(this, circle.x, circle.y, circle.radius, color)
+}
+
 fun SpriteBatch.drawCircle(x: Float, y: Float, radius: Float, color: Color = Color.WHITE, thickness: Float = 1f) {
     DrawingHelper.drawCircle(this, x, y, radius, color, thickness)
 }
@@ -34,7 +46,7 @@ fun SpriteBatch.drawCircle(circle: Circle, color: Color = Color.WHITE, thickness
     DrawingHelper.drawCircle(this, circle.x, circle.y, circle.radius, color, thickness)
 }
 
-fun SpriteBatch.drawWithColor(color: Color, action: () -> Unit) {
+fun SpriteBatch.useColor(color: Color, action: () -> Unit) {
     val prevColor = this.color.cpy()
     this.setColor(color)
     action()

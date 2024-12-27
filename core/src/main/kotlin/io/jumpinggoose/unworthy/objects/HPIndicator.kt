@@ -6,10 +6,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import io.jumpinggoose.unworthy.core.GameObject
 import io.jumpinggoose.unworthy.core.IGameDrawable
 import io.jumpinggoose.unworthy.objects.entities.Player
-import ktx.assets.toInternalFile
 
 class HPIndicator(id: String, private val player: Player) : GameObject(id), IGameDrawable {
-    private val lifeClockSprite = Texture("UI/life_clock.png".toInternalFile()).apply { setFilter(Linear, Linear) }
+    private val lifeClockSprite = Texture("UI/life_clock.png").apply { setFilter(Linear, Linear) }
     private val spacing = 100
 
     override fun draw(batch: SpriteBatch) {

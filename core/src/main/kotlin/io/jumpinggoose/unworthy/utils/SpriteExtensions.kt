@@ -16,6 +16,10 @@ fun Sprite.setPosition(position: Vector2) {
     setPosition(position.x, position.y)
 }
 
+fun Sprite.setOriginBasedPosition(position: Vector2) {
+    setOriginBasedPosition(position.x, position.y)
+}
+
 fun Sprite.getCorners(position: Vector2, scale: Vector2 = Vector2(1f, 1f), rotation: Float = 0f): Array<Vector2> {
     var vector1 = Vector2(-this.originX, -this.originY)
     var vector2 = Vector2(vector1.x + this.width, vector1.y + this.height)
@@ -36,7 +40,7 @@ fun Sprite.getCorners(position: Vector2, scale: Vector2 = Vector2(1f, 1f), rotat
     if (rotation != 0f) {
         val rotationMatrix = Matrix3().setToRotation(rotation)
         for (i in corners.indices) {
-            corners[i] = corners[i].mul(rotationMatrix)
+            corners[i].mul(rotationMatrix)
         }
     }
 

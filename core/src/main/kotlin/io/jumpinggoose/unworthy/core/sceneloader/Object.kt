@@ -8,6 +8,7 @@ import io.jumpinggoose.unworthy.core.GameObject
 import io.jumpinggoose.unworthy.core.SpriteGameObject
 import io.jumpinggoose.unworthy.objects.Ground
 import io.jumpinggoose.unworthy.objects.Stars
+import io.jumpinggoose.unworthy.objects.entities.Flye
 import ktx.json.readArrayValue
 
 data class Object(
@@ -47,8 +48,8 @@ data class Object(
     )
 
     private val typeToOrigin = mapOf(
-        "Player" to Vector2(131.84f, 232.5f),
-        "Flye" to Vector2(299.5f, 297f)
+        "Player" to Vector2(131.84f, 152f),
+        "Flye" to Vector2(299.5f, 196f)
     )
 
     private val rectangleTypes = setOf(
@@ -76,7 +77,7 @@ data class Object(
 
     fun create(): GameObject? {
         return when (type) {
-            // "Flye" -> Flye(position)
+            "Flye" -> Flye(position)
             "Stars" -> Stars(position, width, height)
             "Ground" -> Ground(position, width.toFloat(), height.toFloat())
             "Platform" -> Ground(position, width.toFloat(), height.toFloat())

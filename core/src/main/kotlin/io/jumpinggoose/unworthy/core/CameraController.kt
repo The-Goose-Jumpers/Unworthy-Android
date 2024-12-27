@@ -4,15 +4,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import io.jumpinggoose.unworthy.Constants
-import io.jumpinggoose.unworthy.utils.closestPointTo
-import io.jumpinggoose.unworthy.utils.getVertices
 import ktx.graphics.lerpTo
 import ktx.graphics.moveTo
 import ktx.math.plusAssign
 import ktx.math.times
-import kotlin.div
-import kotlin.text.compareTo
-import kotlin.times
 
 class CameraController(val camera: OrthographicCamera) : IGameLoop {
     private val bounds = mutableListOf<Rectangle>()
@@ -69,16 +64,7 @@ class CameraController(val camera: OrthographicCamera) : IGameLoop {
     override fun update(delta: Float) {
         followTarget?.let { target ->
             // Check if the follow target is within any of the bounds, if not, do nothing
-            val boundsFollowTargetIsIn = bounds.firstOrNull { it.contains(target.position) }
-
-            if (boundsFollowTargetIsIn == null) {
-                println("Target is not in any of the bounds")
-                println("Target position: ${target.position}")
-                bounds.forEach { println("Bounds: $it") }
-                return
-            } else {
-                println("Target is in bounds: $boundsFollowTargetIsIn")
-            }
+            val boundsFollowTargetIsIn = bounds.firstOrNull { it.contains(target.position) } ?: return
 
             var targetPosition = target.position.cpy()
             // Apply camera offset

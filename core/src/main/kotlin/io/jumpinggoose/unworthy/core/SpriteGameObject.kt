@@ -3,7 +3,7 @@ package io.jumpinggoose.unworthy.core
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Shape2D
 import com.badlogic.gdx.math.Vector2
 import io.jumpinggoose.unworthy.utils.Sprite
 
@@ -43,7 +43,7 @@ open class SpriteGameObject(
         sprite.color = color
     }
 
-    override val bounds: Rectangle
+    override val bounds: Shape2D
         get() = sprite.boundingRectangle
 
     override fun draw(batch: SpriteBatch) {

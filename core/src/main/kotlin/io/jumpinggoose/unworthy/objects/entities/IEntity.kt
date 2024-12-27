@@ -10,5 +10,7 @@ interface IEntity : IGameCollideable2D {
     val isDead: Boolean
         get() = health <= 0
 
+    fun initialize() {}
+
     fun takeDamage(source: GameObject, damage: Int, impactForce: Float = 0f)
 }

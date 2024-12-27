@@ -2,7 +2,6 @@ package io.jumpinggoose.unworthy.utils
 
 import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.Intersector
-import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Shape2D
 import com.badlogic.gdx.math.Vector2

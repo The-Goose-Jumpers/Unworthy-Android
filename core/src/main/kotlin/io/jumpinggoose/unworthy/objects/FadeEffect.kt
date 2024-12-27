@@ -4,13 +4,17 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils
-import io.jumpinggoose.unworthy.Constants
-import io.jumpinggoose.unworthy.core.GameObject
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import io.jumpinggoose.unworthy.core.IGameDrawable
+import io.jumpinggoose.unworthy.core.IGameLoop
 import io.jumpinggoose.unworthy.utils.DrawingHelper
-import io.jumpinggoose.unworthy.utils.drawWithColor
+import io.jumpinggoose.unworthy.utils.useColor
+import ktx.graphics.use
 
-class FadeEffect : GameObject(), IGameDrawable {
+class FadeEffect : IGameLoop, IGameDrawable {
+    private val width = Gdx.graphics.width.toFloat()
+    private val height = Gdx.graphics.height.toFloat()
+    private val viewport = ScreenViewport()
     private var isEnabled = false
     private var hasEnded = false
     private var alpha = 0f
@@ -50,11 +54,15 @@ class FadeEffect : GameObject(), IGameDrawable {
     override fun draw(batch: SpriteBatch) {
         if (!isEnabled) return
         if (alpha <= 0f) return
-        val texture = DrawingHelper.getTexture()
-        val width = Constants.TARGET_WIDTH.toFloat()
-        val height = Constants.TARGET_HEIGHT.toFloat()
-        batch.drawWithColor(Color(0f, 0f, 0f, alpha)) {
-            batch.draw(texture, position.x, position.y, width, height)
+        viewport.apply(true)
+        batch.use(viewport.camera) {
+            it.useColor(Color(0f, 0f, 0f, alpha)) {
+                it.draw(DrawingHelper.getTexture(), 0f, 0f, width, height)
+            }
         }
+    }
+
+    fun resize(width: Int, height: Int) {
+        viewport.update(width, height, true)
     }
 }

@@ -47,7 +47,6 @@ class MainMenu(private val game: UnworthyApp) : Scene(game) {
         canvas.add(titleSprite, Vector2(0.3f, 0.75f))
         canvas.add(characterSprite, Vector2(0.75f, 0.5f))
         canvas.add(tapToBeginText, Vector2(0.2f, 0.25f))
-        canvas.add(fadeEffect)
         characterStartPosition = characterSprite.position.cpy()
         characterEndPosition = Vector2(characterStartPosition.x, -characterSprite.sprite.height)
     }
@@ -103,6 +102,7 @@ class MainMenu(private val game: UnworthyApp) : Scene(game) {
 
     override fun draw() {
         canvas.draw(game.batch)
+        fadeEffect.draw(game.batch)
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
@@ -112,6 +112,7 @@ class MainMenu(private val game: UnworthyApp) : Scene(game) {
 
     override fun resize(width: Int, height: Int) {
         canvas.resize(width, height)
+        fadeEffect.resize(width, height)
     }
 
     override fun dispose() {

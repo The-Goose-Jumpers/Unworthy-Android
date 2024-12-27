@@ -30,6 +30,8 @@ class SceneLoader(sceneName: String) {
         for (layer in scene.layers) {
             if (layer.name == "Bounds" || layer.name == "KillTriggers" || layer.name == "Entities") continue
             for (factory in layer.objects) {
+                // TODO: Invisible objects should still exist, just not be drawn. But for now, we skip them.
+                if (!factory.visible) continue
                 val obj = factory.create() ?: continue
                 obj.layer = layerDepths[layer.name] ?: Constants.LAYER_OBJECTS
                 if (factory.type == "Ground" || factory.type == "Platform") {

@@ -33,6 +33,11 @@ object DrawingHelper : Disposable {
         shapeDrawer.rectangle(x, y, width, height, color, thickness)
     }
 
+    fun fillCircle(batch: SpriteBatch, x: Float, y: Float, radius: Float, color: Color) {
+        val shapeDrawer = ShapeDrawer(batch, pixel)
+        shapeDrawer.filledCircle(x, y, radius, color)
+    }
+
     fun drawCircle(batch: SpriteBatch, x: Float, y: Float, radius: Float, color: Color, thickness: Float) {
         val shapeDrawer = ShapeDrawer(batch, pixel)
         shapeDrawer.setColor(color)

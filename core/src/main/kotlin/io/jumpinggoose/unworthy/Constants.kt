@@ -16,5 +16,5 @@ object Constants {
     const val LAYER_ENTITIES = 0.6f
     const val LAYER_FOREGROUND = 0.7f
 
-    const val DRAW_DEBUG = true
+    const val DRAW_DEBUG = false
 }

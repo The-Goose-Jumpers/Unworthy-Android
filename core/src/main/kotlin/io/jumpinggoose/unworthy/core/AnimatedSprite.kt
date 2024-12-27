@@ -43,14 +43,19 @@ class AnimatedSprite(
         playAnimation?.let { play(it) }
     }
 
-    fun play(name: String, onCompleted: (() -> Unit)? = null): Animation<TextureRegion>? {
-        if (currentAnimation == null || currentAnimation != name || isComplete) {
+    fun play(name: String, onCompleted: (() -> Unit)? = null) {
+        if (currentAnimation == name) {
+            val animationPlayMode = _currentAnimation!!.playMode
+            if ((animationPlayMode == Animation.PlayMode.NORMAL || animationPlayMode == Animation.PlayMode.REVERSED) && isComplete) {
+                stateTime = 0f
+                this.onCompleted = onCompleted
+            }
+        } else {
             if (name in animations) {
                 currentAnimation = name
                 this.onCompleted = onCompleted
             }
         }
-        return _currentAnimation
     }
 
     fun pause() {
@@ -66,9 +71,26 @@ class AnimatedSprite(
         stateTime = 0f
     }
 
+    var isFlippedX: Boolean = false
+        set (value) {
+            field = value
+            setFlip(value, isFlippedY)
+        }
+
+    var isFlippedY: Boolean = false
+        set (value) {
+            field = value
+            setFlip(isFlippedX, value)
+        }
+
+    fun setFrame(frame: TextureRegion) {
+        setRegion(frame)
+        setFlip(isFlippedX, isFlippedY)
+    }
+
     fun setTextureRegion(regionIndex: Int) {
         currentAnimation = null
-        setRegion(spritesheet.getRegion(regionIndex))
+        setFrame(spritesheet.getRegion(regionIndex))
     }
 
     fun setFrameRate(framesPerSecond: Int) {
@@ -83,16 +105,15 @@ class AnimatedSprite(
         if (_currentAnimation == null) return
         if (isPaused) return
 
+        val previousFrame = currentFrame
         stateTime += delta
-        setRegion(currentFrame)
+        val nextFrame = currentFrame
+        if (previousFrame != nextFrame) setFrame(nextFrame!!)
 
-        if (isComplete) return
-        onCompleted?.invoke()
-        stateTime = when(_currentAnimation!!.playMode) {
-            Animation.PlayMode.LOOP,
-            Animation.PlayMode.LOOP_REVERSED -> stateTime - _currentAnimation!!.animationDuration
-            else -> stateTime
+        if (isComplete) {
+            val onCompleted = this.onCompleted ?: return
+            this.onCompleted = null
+            onCompleted()
         }
-        stateTime = stateTime.coerceAtLeast(0f)
     }
 }

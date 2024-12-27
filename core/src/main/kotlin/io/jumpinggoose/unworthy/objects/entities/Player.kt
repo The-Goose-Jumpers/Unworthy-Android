@@ -18,11 +18,16 @@ import io.jumpinggoose.unworthy.utils.fillRectangle
 import io.jumpinggoose.unworthy.utils.getBoundingRectangle
 import io.jumpinggoose.unworthy.utils.getCorners
 import io.jumpinggoose.unworthy.utils.getPenetrationVector
-import io.jumpinggoose.unworthy.utils.setPosition
+import io.jumpinggoose.unworthy.utils.nextFloat
+import io.jumpinggoose.unworthy.utils.setOriginBasedPosition
 import ktx.math.*
+import kotlin.math.abs
+import kotlin.random.Random
 
-class Player(private val level: Level, position: Vector2)
-    : AnimatedGameObject("Player", "Characters/Player/player.sf", position), IEntity {
+class Player(
+    private val level: Level,
+    position: Vector2
+) : AnimatedGameObject("Player", "Characters/Player/player.sf", position), IEntity {
     override val isFriendly: Boolean = true
     override var health: Int = 5
 
@@ -32,7 +37,7 @@ class Player(private val level: Level, position: Vector2)
     private val gravityScale: Float = 1.5f
     private var velocity: Vector2 = Vector2()
 
-    private var horizontalMovement: Float = 1f
+    private var horizontalMovement: Float = 0f
     private var isGrounded: Boolean = false
     private var isFacingRight: Boolean = true
     private var pressedAttack: Boolean = false
@@ -45,7 +50,7 @@ class Player(private val level: Level, position: Vector2)
     private var attackCooldown: Float = 0.2f
     private var attackCooldownTimer: Float = 0f
     private val attackSprite: AnimatedSprite
-    private var attackEffectOffset: Vector2 = Vector2(130f, -105f)
+    private var attackEffectOffset: Vector2 = Vector2(130f, 105f)
 
     private var invincibilityDuration: Float = 1.5f
     private var invincibilityTimer: Float = 0f
@@ -53,47 +58,42 @@ class Player(private val level: Level, position: Vector2)
     private var idleAnimationTimer: Float = 0f
 
     private val startPosition: Vector2 = position.cpy()
-    private val random = kotlin.random.Random(id.hashCode())
+    private val random = Random(id.hashCode())
 
     init {
         layer = Constants.LAYER_ENTITIES
-        sprite.setOrigin(131.84f, 232.5f)
+        sprite.setOrigin(131.84f, 152f)
         sprite.setFrameRate(12)
         attackSprite = AnimatedSprite("Characters/Player/attack_effects.sf", framesPerSecond = 12)
     }
 
-    fun initialize() {
+    override fun initialize() {
         level.cameraController.offset = Vector2(if (isFacingRight) 1f else -1f, 0f)
         level.cameraController.setFollowTarget(this)
     }
 
-    // fun handleInput(inputHelper: InputHelper) {
-    //     pressedAttack = false
-    //     if (isGrounded) {
-    //         if (inputHelper.keyPressed(Keys.F) || inputHelper.mouseLeftButtonPressed() || inputHelper.gamePadButtonPressed(Buttons.X)) {
-    //             pressedAttack = true
-    //         } else if (inputHelper.keyPressed(Keys.SPACE) || inputHelper.gamePadButtonPressed(Buttons.A)) {
-    //             velocity.sub(Vector2.Y * jumpForce)
-    //         }
-    //     }
-    //     horizontalMovement = 0f
-    //     if (inputHelper.isKeyDown(Keys.A) || inputHelper.isKeyDown(Keys.LEFT) || inputHelper.isGamePadButtonDown(Buttons.DPAD_LEFT)) {
-    //         horizontalMovement -= 1f
-    //     }
-    //     if (inputHelper.isKeyDown(Keys.D) || inputHelper.isKeyDown(Keys.RIGHT) || inputHelper.isGamePadButtonDown(Buttons.DPAD_RIGHT)) {
-    //         horizontalMovement += 1f
-    //     }
-    //     if (horizontalMovement == 0f && kotlin.math.abs(inputHelper.getGamePadHorizontalAxis()) > 0.05f) {
-    //         horizontalMovement = inputHelper.getGamePadHorizontalAxis()
-    //     }
-    // }
+    fun handleInput() {
+        pressedAttack = false
+        if (isGrounded) {
+            if (level.attackButton.wasTouched) {
+                pressedAttack = true
+            } else if (level.jumpButton.wasTouched) {
+                velocity.add(Vector2.Y * jumpForce)
+            }
+        }
+        horizontalMovement = 0f
+        val horizontalAxisInput = level.analogControl.horizontalAxis
+        if (abs(horizontalAxisInput) > 0.05f) {
+            horizontalMovement = horizontalAxisInput
+        }
+    }
 
     override fun update(delta: Float) {
         if (isDead) {
-            println("Player is dead, skipping update")
             super.update(delta)
             return
         }
+        handleInput()
 
         if (invincibilityTimer > 0) invincibilityTimer -= delta
         if (attackCooldownTimer > 0) attackCooldownTimer -= delta
@@ -103,15 +103,15 @@ class Player(private val level: Level, position: Vector2)
 
         // Check if player is grounded
         var playerHitbox = getBoundingRectangle(position)
-        val playerBottom = Rectangle(playerHitbox.x, playerHitbox.y + playerHitbox.height, playerHitbox.width, 3f)
+        val playerBottom = Rectangle(playerHitbox.x, playerHitbox.y - 3f, playerHitbox.width, 3f)
         isGrounded = level.terrain.collidesWith(playerBottom)
 
         // Apply gravity
         if (!isGrounded) {
-            println("Not grounded, applying gravity")
+            Gdx.app.debug("Player", "Not grounded, applying gravity")
             velocity.add(-Vector2.Y * Constants.GRAVITY * gravityScale * delta)
-        } else if (velocity.y > 0) {
-            println("Grounded, resetting vertical velocity")
+        } else if (velocity.y < 0) {
+            Gdx.app.debug("Player", "Player is grounded but falling, resetting vertical velocity")
             velocity.y = 0f
         }
 
@@ -129,9 +129,11 @@ class Player(private val level: Level, position: Vector2)
         }
 
         var penetrationVector = level.terrain.getPenetrationVector(this)
+        // If there is a collision, resolve it
         if (!penetrationVector.isZero) {
-            println("Terrain collision detected, applying penetration vector: $penetrationVector")
+            Gdx.app.debug("Player", "Terrain collision detected, applying penetration vector: $penetrationVector")
             position = position + penetrationVector
+            // Kill velocity in the direction of the collision
             velocity.set(
                 if (penetrationVector.x == 0f) velocity.x else 0f,
                 if (penetrationVector.y == 0f) velocity.y else 0f
@@ -147,15 +149,18 @@ class Player(private val level: Level, position: Vector2)
         playerHitbox = getBoundingRectangle(position)
         penetrationVector = level.boundaries.getPenetrationVector(playerHitbox)
         if (!penetrationVector.isZero) {
-            println("Level boundary collision detected, applying penetration vector: $penetrationVector")
+            Gdx.app.debug("Player", "Level boundary collision detected, applying penetration vector: $penetrationVector")
             position = position + penetrationVector
-            velocity.set(if (penetrationVector.x == 0f) velocity.x else 0f, if (penetrationVector.y == 0f) velocity.y else 0f)
+            velocity.set(
+                if (penetrationVector.x == 0f) velocity.x else 0f,
+                if (penetrationVector.y == 0f) velocity.y else 0f
+            )
         }
 
         deltaPosition = position - previousPosition
 
         if (pressedAttack) performAttack()
-        attackSprite.setPosition(globalPosition + attackEffectOffset)
+        attackSprite.setOriginBasedPosition(globalPosition + attackEffectOffset)
         attackSprite.update(delta)
 
         updateFacingDirection()
@@ -177,7 +182,7 @@ class Player(private val level: Level, position: Vector2)
         attackSprite.play("attack")
         level.enemies.forEach { enemy ->
             if (!enemy.isDead && enemy.collidesWith(attackBounds)) {
-                enemy.takeDamage(this, 1, 2f)
+                enemy.takeDamage(this, 1, 1.75f)
             }
         }
     }
@@ -194,21 +199,20 @@ class Player(private val level: Level, position: Vector2)
     private fun setFacingDirection(isFacingRight: Boolean) {
         if (this.isFacingRight == isFacingRight) return
         this.isFacingRight = isFacingRight
-        sprite.setFlip(!isFacingRight, false)
-        attackSprite.setFlip(!isFacingRight, false)
+        sprite.isFlippedX = !isFacingRight
+        attackSprite.isFlippedX = !isFacingRight
         attackEffectOffset.x = -attackEffectOffset.x
         sprite.setOrigin(sprite.width - sprite.originX, sprite.originY)
     }
 
     private fun updateAnimation(delta: Float) {
-        val isMovingHorizontally = kotlin.math.abs(deltaPosition.x) > 0.01f
-        val isMovingVertically = kotlin.math.abs(deltaPosition.y) > 0.01f
-        val currentAnimationName = sprite.currentAnimation ?: ""
+        val isMovingHorizontally = abs(deltaPosition.x) > 0.01f
+        val isMovingVertically = abs(deltaPosition.y) > 0.01f
 
         if (pressedAttack) {
             val nextAnimation = when {
-                sprite.currentAnimation == Animation.ATTACK_1 && sprite.isComplete == true -> Animation.ATTACK_2
-                sprite.currentAnimation == Animation.ATTACK_2 && sprite.isComplete == true -> Animation.ATTACK_1
+                sprite.currentAnimation == Animation.ATTACK_1 && sprite.isComplete -> Animation.ATTACK_2
+                sprite.currentAnimation == Animation.ATTACK_2 && sprite.isComplete -> Animation.ATTACK_1
                 else -> if (lastAttackAnimation == Animation.ATTACK_1) Animation.ATTACK_2 else Animation.ATTACK_1
             }
             lastAttackAnimation = nextAnimation
@@ -217,8 +221,8 @@ class Player(private val level: Level, position: Vector2)
         }
 
         if (sprite.currentAnimation != null) {
-            when (currentAnimationName) {
-                Animation.ATTACK_1, Animation.ATTACK_2 -> if (sprite.isComplete == true) {
+            when (sprite.currentAnimation) {
+                Animation.ATTACK_1, Animation.ATTACK_2 -> if (sprite.isComplete) {
                     playAnimation(Animation.ATTACK_END)
                     return
                 }
@@ -228,38 +232,47 @@ class Player(private val level: Level, position: Vector2)
         if (isAttacking) return
 
         if (isMovingVertically && !isGrounded) {
-            if (deltaPosition.y < 0) {
+            // These animations should only play if the player is not grounded.
+            // e.g. if the player is in a moving (vertically) platform, this would be detected as vertical movement,
+            // but we don't want to play the jump/fall animations in this case.
+            // We don't want to play the same animation again even if it has already completed because these animations
+            // aren't designed to loop. Instead, the sprite must remain in the last frame of the animation for as long
+            // as the player is still moving vertically.
+            if (deltaPosition.y > 0) {
                 if (sprite.currentAnimation != Animation.JUMP) playAnimation(Animation.JUMP)
             } else {
                 if (sprite.currentAnimation != Animation.FALL) playAnimation(Animation.FALL)
             }
+            // We return here because the jump/fall animations are higher priority than the walking and idle animations.
+            // e.g. we don't want to play the walk animation while the player is falling.
             return
         }
 
         if (isMovingHorizontally) {
             if (!isGrounded) return
-            when (currentAnimationName) {
-                Animation.IDLE, Animation.FALL, Animation.ATTACK_END -> playAnimation(Animation.WALK_START)
-                Animation.WALK_START -> if (sprite.isComplete == true) playAnimation(Animation.WALK_LOOP)
-                Animation.WALK_END -> playAnimation(if (sprite.isComplete == true) Animation.WALK_START else Animation.WALK_LOOP)
+            when (sprite.currentAnimation) {
+                null, Animation.IDLE, Animation.FALL, Animation.ATTACK_END -> playAnimation(Animation.WALK_START)
+                Animation.WALK_START -> if (sprite.isComplete) playAnimation(Animation.WALK_LOOP)
+                Animation.WALK_END -> playAnimation(if (sprite.isComplete) Animation.WALK_START else Animation.WALK_LOOP)
                 else -> playAnimation(Animation.WALK_LOOP)
             }
             return
         }
 
-        when (currentAnimationName) {
+        when (sprite.currentAnimation) {
+            null -> playIdleAnimation(delta)
             Animation.WALK_LOOP-> playAnimation(Animation.WALK_END)
-            Animation.WALK_START -> if (sprite.isComplete == true) playIdleAnimation(delta) else playAnimation(Animation.WALK_END)
+            Animation.WALK_START -> if (sprite.isComplete) playIdleAnimation(delta) else playAnimation(Animation.WALK_END)
             Animation.FALL -> if (isGrounded) playAnimation(Animation.LAND)
-            else -> if (sprite.isComplete == true) playIdleAnimation(delta)
+            else -> if (sprite.isComplete) playIdleAnimation(delta)
         }
     }
 
     private fun playIdleAnimation(delta: Float) {
         idleAnimationTimer -= delta
         if (idleAnimationTimer <= 0) {
-            playAnimation(Animation.IDLE)
-            idleAnimationTimer = random.nextFloat() * (7.5f - 3f) + 3f
+            // playAnimation(Animation.IDLE)
+            idleAnimationTimer = random.nextFloat(3f, 7.5f)
         } else {
             changeToStandingSprite()
         }
@@ -283,7 +296,7 @@ class Player(private val level: Level, position: Vector2)
         if (health <= 0) {
             playAnimation(Animation.DEATH) { level.restart() }
         } else {
-              level.flashVignetteRed()
+            level.flashVignetteRed()
             playAnimation(Animation.HURT)
         }
         invincibilityTimer = invincibilityDuration
@@ -313,7 +326,7 @@ class Player(private val level: Level, position: Vector2)
         }
     }
 
-    fun drawDebug(batch: SpriteBatch) {
+    override fun drawDebug(batch: SpriteBatch) {
         if (isAttacking && !isDead) {
             batch.drawRectangle(attackBounds, Color.RED, 3f)
         }

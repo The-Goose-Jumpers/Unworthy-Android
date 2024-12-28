@@ -11,11 +11,12 @@ import io.jumpinggoose.unworthy.core.Scene
 import io.jumpinggoose.unworthy.core.SpriteGameObject
 import io.jumpinggoose.unworthy.objects.FadeEffect
 import io.jumpinggoose.unworthy.objects.Stars
+import io.jumpinggoose.unworthy.objects.Text
 import ktx.graphics.LetterboxingViewport
 import ktx.math.plus
 import kotlin.math.cos
 
-class MainMenu(private val game: UnworthyApp) : Scene(game) {
+class MainMenu(game: UnworthyApp) : Scene(game) {
 
     override var viewport = LetterboxingViewport(
         600f,
@@ -38,6 +39,8 @@ class MainMenu(private val game: UnworthyApp) : Scene(game) {
     private val tapToBeginText = SpriteGameObject("tapToBegin", "UI/taptobegin.png")
     var tapToBeginTextTime = 0f
 
+    private val playTimeText = Text("Play Time: 0:00", game.font)
+
     private val stars = Stars(width = Constants.TARGET_WIDTH, height = Constants.TARGET_HEIGHT)
 
     val gyroscopeAvailable = Gdx.input.isPeripheralAvailable(Peripheral.Gyroscope)
@@ -47,6 +50,7 @@ class MainMenu(private val game: UnworthyApp) : Scene(game) {
         canvas.add(titleSprite, Vector2(0.3f, 0.75f))
         canvas.add(characterSprite, Vector2(0.75f, 0.5f))
         canvas.add(tapToBeginText, Vector2(0.2f, 0.25f))
+        canvas.add(playTimeText, Vector2(0.80f, 0.95f))
         characterStartPosition = characterSprite.position.cpy()
         characterEndPosition = Vector2(characterStartPosition.x, -characterSprite.sprite.height)
     }
@@ -58,9 +62,23 @@ class MainMenu(private val game: UnworthyApp) : Scene(game) {
     override fun update(delta: Float) {
         stars.update(delta)
 
+        val playTime = game.playerData.totalPlaytime
+        val hours = playTime / 3600000f
+        if (hours >= 10f) {
+            playTimeText.text = "Play Time: ${"%.1f".format(hours)} h"
+        } else {
+            val minutes = playTime / 60000 % 60
+            if (hours.toInt() == 0) {
+                val seconds = playTime / 1000 % 60
+                playTimeText.text = "Play Time: ${minutes}m ${seconds.toString().padStart(2, '0')}s"
+            } else {
+                playTimeText.text = "Play Time: ${hours.toInt()}h ${minutes.toString().padStart(2, '0')}m"
+            }
+        }
+
         if (gyroscopeAvailable) {
             // Calculate target position based on gyroscope input
-            val gyroscopeOffset = Vector2(Gdx.input.gyroscopeX * 150f, Gdx.input.gyroscopeY * 50f)
+            val gyroscopeOffset = Vector2(Gdx.input.gyroscopeX * 100f, Gdx.input.gyroscopeY * 25f)
             if (!isFallingAnimationInProgress) {
                 val targetPosition = characterStartPosition + gyroscopeOffset
                 // Apply damping

@@ -61,6 +61,9 @@ class Player(
     private val startPosition: Vector2 = position.cpy()
     private val random = Random(id.hashCode())
 
+    var deathCount: Int = 0
+    var killCount: Int = 0
+
     init {
         layer = Constants.LAYER_ENTITIES
         sprite.setOrigin(131.84f, 152f)
@@ -125,6 +128,9 @@ class Player(
         position = position + (velocity * Constants.PIXELS_PER_UNIT * delta)
 
         if (this.collidesWith(level.killTriggers)) {
+            level.flashVignetteRed()
+            deathCount++
+            health = 0
             level.restart()
             return
         }
@@ -294,14 +300,17 @@ class Player(
     override fun takeDamage(source: GameObject, damage: Int, impactForce: Float) {
         if (invincibilityTimer > 0) return
         health -= damage
-        if (health <= 0) {
-            playAnimation(Animation.DEATH) { level.restart() }
+        if (isDead) {
+            deathCount++
+            playAnimation(Animation.DEATH) {
+                level.restart()
+            }
         } else {
             level.flashVignetteRed()
             playAnimation(Animation.HURT)
         }
         invincibilityTimer = invincibilityDuration
-        Gdx.input.vibrate(VibrationType.LIGHT)
+        Gdx.input.vibrate(150, 75, true)
     }
 
     override fun reset() {

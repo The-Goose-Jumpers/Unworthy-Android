@@ -231,6 +231,7 @@ class Flye(
         health -= damage
         sprite.color = Color.RED
         if (isDead) {
+            if (source is Player) source.killCount++
             playAnimation(Animation.DEATH)
             return
         }

@@ -9,7 +9,7 @@ import ktx.app.clearScreen
 import ktx.graphics.use
 
 abstract class Scene(
-    private val game: UnworthyApp,
+    val game: UnworthyApp
 ) : GameObjectList(), KtxScreen, KtxInputAdapter {
 
     abstract val viewport: Viewport

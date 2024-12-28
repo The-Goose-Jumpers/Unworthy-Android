@@ -1,5 +1,6 @@
 package io.jumpinggoose.unworthy.scenes
 
+import com.badlogic.gdx.Application.ApplicationType
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
@@ -23,6 +24,7 @@ import io.jumpinggoose.unworthy.input.ControlButton
 import io.jumpinggoose.unworthy.objects.FadeEffect
 import io.jumpinggoose.unworthy.objects.HPIndicator
 import io.jumpinggoose.unworthy.objects.Terrain
+import io.jumpinggoose.unworthy.objects.Text
 import io.jumpinggoose.unworthy.objects.entities.IEntity
 import io.jumpinggoose.unworthy.objects.entities.Player
 import io.jumpinggoose.unworthy.utils.drawRectangle
@@ -30,13 +32,14 @@ import io.jumpinggoose.unworthy.utils.fillRectangle
 import ktx.graphics.LetterboxingViewport
 import ktx.graphics.use
 
-class Level(private val game: UnworthyApp) : Scene(game) {
+class Level(game: UnworthyApp) : Scene(game) {
 
     override val viewport = ExtendViewport(
         Constants.TARGET_WIDTH.toFloat(),
         Constants.TARGET_HEIGHT.toFloat()
     )
 
+    private var startTime: Long = 0
     private val fadeEffect = FadeEffect()
     private val vignette = SpriteGameObject("vignette", "UI/vignette.png")
     private var vignetteColor = Color.BLACK.cpy()
@@ -60,6 +63,8 @@ class Level(private val game: UnworthyApp) : Scene(game) {
     val cameraController: CameraController
     val terrain: Terrain
     val enemies = mutableListOf<IEntity>()
+
+    val deathCounterText = Text("Deaths: 0", game.font)
 
     val analogControl: ControlAnalog
     val attackButton: ControlButton
@@ -97,6 +102,9 @@ class Level(private val game: UnworthyApp) : Scene(game) {
             }
         }
 
+        hudCanvas.add(HPIndicator("HPIndicator", player), Vector2(0.05f, 0.95f))
+        hudCanvas.add(deathCounterText, Vector2(0.865f, 0.95f))
+
         analogControl = ControlAnalog(
             radius = Gdx.graphics.width * 0.1f
         )
@@ -113,22 +121,42 @@ class Level(private val game: UnworthyApp) : Scene(game) {
             buttonTouchedColor = Color(1f, 1f, 1f, 0.1f)
         )
 
-        hudCanvas.add(HPIndicator("HPIndicator", player), Vector2(0.05f, 0.95f))
-        hudCanvas.add(analogControl, Vector2(0.15f, 0.225f))
-        hudCanvas.add(attackButton, Vector2(0.825f, 0.15f))
-        hudCanvas.add(jumpButton, Vector2(0.925f, 0.25f))
+        if (Gdx.app.type == ApplicationType.Android || Gdx.app.type == ApplicationType.iOS) {
+            hudCanvas.add(analogControl, Vector2(0.15f, 0.225f))
+            hudCanvas.add(attackButton, Vector2(0.825f, 0.15f))
+            hudCanvas.add(jumpButton, Vector2(0.925f, 0.25f))
+        }
 
         vignetteCanvas.add(vignette, Vector2(0.5f, 0.5f))
     }
 
     override fun show() {
+        startTime = System.currentTimeMillis()
         player.initialize()
         enemies.forEach { it.initialize() }
         fadeEffect.start(1500, true)
     }
 
+    override fun pause() {
+        updateServerPlayerData()
+    }
+
+    override fun resume() {
+        startTime = System.currentTimeMillis()
+    }
+
+    fun updateServerPlayerData() {
+        game.playerData.totalPlaytime += System.currentTimeMillis() - startTime
+        game.playerData.enemiesDefeated += player.killCount
+        game.playerData.deaths += player.deathCount
+        game.updatePlayerData()
+        startTime = System.currentTimeMillis()
+        player.killCount = 0
+        player.deathCount = 0
+    }
+
     fun restart() {
-        Gdx.app.log("Level", "Restarting level")
+        updateServerPlayerData()
         fadeEffect.start(1500, false) {
             reset()
             fadeEffect.start(1500, true)
@@ -142,6 +170,7 @@ class Level(private val game: UnworthyApp) : Scene(game) {
 
     override fun update(delta: Float) {
         hudCanvas.update(delta)
+        deathCounterText.text = "Deaths: ${game.playerData.deaths}"
         fadeEffect.update(delta)
         super.update(delta)
 

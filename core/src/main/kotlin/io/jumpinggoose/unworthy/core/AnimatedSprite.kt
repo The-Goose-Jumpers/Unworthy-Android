@@ -105,10 +105,8 @@ class AnimatedSprite(
         if (_currentAnimation == null) return
         if (isPaused) return
 
-        val previousFrame = currentFrame
         stateTime += delta
-        val nextFrame = currentFrame
-        if (previousFrame != nextFrame) setFrame(nextFrame!!)
+        setFrame(currentFrame!!)
 
         if (isComplete) {
             val onCompleted = this.onCompleted ?: return

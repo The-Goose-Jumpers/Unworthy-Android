@@ -32,6 +32,7 @@ class Player(
     override var health: Int = 5
 
     private val speed: Float = 2.5f
+    private val speedWhileAttacking: Float = 0.5f
     private val jumpForce: Float = 6.2f
     private val maxFallSpeed: Float = 12f
     private val gravityScale: Float = 1.5f
@@ -117,7 +118,7 @@ class Player(
 
         // Apply horizontal movement and clamp vertical speed
         velocity.set(
-            if (!pressedAttack && !isAttacking) horizontalMovement * speed else 0f,
+            horizontalMovement * (if (pressedAttack || isAttacking) speedWhileAttacking else speed),
             MathUtils.clamp(velocity.y, -maxFallSpeed, jumpForce)
         )
 
@@ -182,7 +183,7 @@ class Player(
         attackSprite.play("attack")
         level.enemies.forEach { enemy ->
             if (!enemy.isDead && enemy.collidesWith(attackBounds)) {
-                enemy.takeDamage(this, 1, 1.75f)
+                enemy.takeDamage(this, 1, 0.75f)
             }
         }
     }

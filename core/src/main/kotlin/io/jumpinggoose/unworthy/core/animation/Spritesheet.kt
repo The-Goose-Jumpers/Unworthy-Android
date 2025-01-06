@@ -1,11 +1,11 @@
 package io.jumpinggoose.unworthy.core.animation
 
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.Json
+import io.jumpinggoose.unworthy.core.AssetManager
 import ktx.assets.toInternalFile
 import ktx.json.fromJson
 
@@ -20,7 +20,7 @@ class Spritesheet(assetName: String) : Disposable {
     init {
         val json = Json()
         val animationData = json.fromJson<AnimationData>(assetName.toInternalFile())
-        val texture = Texture(animationData.textureAtlas.texture.toInternalFile())
+        val texture = AssetManager.loadTextureSync(animationData.textureAtlas.texture)
         val textureRegions = TextureRegion.split(texture, animationData.textureAtlas.regionWidth, animationData.textureAtlas.regionHeight)
         this.textureRegions = textureRegions.flatten()
 

@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import io.jumpinggoose.unworthy.core.AssetManager
 import io.jumpinggoose.unworthy.core.Scene
 import io.jumpinggoose.unworthy.models.PlayerData
 import io.jumpinggoose.unworthy.scenes.Level
@@ -13,15 +14,14 @@ import io.jumpinggoose.unworthy.utils.DrawingHelper
 import kotlinx.coroutines.launch
 import ktx.app.KtxGame
 import ktx.app.KtxInputAdapter
-import ktx.assets.async.AssetStorage
 import ktx.async.KtxAsync
 
 class UnworthyApp(
     private val playerDataRepository: PlayerDataRepository
 ) : KtxGame<Scene>(), KtxInputAdapter {
+    private val assetManager: AssetManager by lazy { AssetManager }
+
     lateinit var batch: SpriteBatch
-        private set
-    lateinit var assetStorage: AssetStorage
         private set
     lateinit var bgm: Music
         private set
@@ -35,7 +35,6 @@ class UnworthyApp(
         KtxAsync.initiate()
 
         batch = SpriteBatch()
-        assetStorage = AssetStorage()
 
         if (Constants.DEBUG) {
             Gdx.app.logLevel = Application.LOG_DEBUG
@@ -43,7 +42,7 @@ class UnworthyApp(
 
         val game = this
         KtxAsync.launch {
-            assetStorage.apply {
+            assetManager.apply {
                 bgm = load<Music>("Sounds/Midnight_Dreams.ogg").apply {
                     isLooping = true
                     volume = 0.5f
@@ -88,8 +87,7 @@ class UnworthyApp(
     override fun dispose() {
         super.dispose()
         batch.dispose()
-        assetStorage.dispose()
-        bgm.dispose()
+        assetManager.dispose()
         DrawingHelper.dispose()
     }
 }

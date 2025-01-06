@@ -1,15 +1,13 @@
 package io.jumpinggoose.unworthy.utils
 
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.Texture.TextureFilter.Linear
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import ktx.assets.toInternalFile
+import io.jumpinggoose.unworthy.core.AssetManager
 
 fun Sprite(path: String) : Sprite {
-    return Sprite(Texture(path.toInternalFile(), true).apply { setFilter(Linear, Linear) })
+    return Sprite(AssetManager.loadTextureSync(path))
 }
 
 fun Sprite.setPosition(position: Vector2) {

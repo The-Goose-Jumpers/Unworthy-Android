@@ -51,8 +51,4 @@ open class SpriteGameObject(
     }
 
     override fun update(delta: Float) {}
-
-    override fun dispose() {
-        sprite.texture.dispose()
-    }
 }

@@ -86,10 +86,6 @@ class ControlButton(
         }
     }
 
-    override fun dispose() {
-        texture?.dispose()
-    }
-
     private val world: Canvas
         get() = root as Canvas
 }

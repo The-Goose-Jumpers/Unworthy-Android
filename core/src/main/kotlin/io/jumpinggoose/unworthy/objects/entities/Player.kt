@@ -1,7 +1,6 @@
 package io.jumpinggoose.unworthy.objects.entities
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input.VibrationType
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils

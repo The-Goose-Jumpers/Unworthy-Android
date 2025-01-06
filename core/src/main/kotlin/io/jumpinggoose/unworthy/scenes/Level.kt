@@ -3,8 +3,6 @@ package io.jumpinggoose.unworthy.scenes
 import com.badlogic.gdx.Application.ApplicationType
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.Texture.TextureFilter.Linear
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
@@ -12,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.FillViewport
 import io.jumpinggoose.unworthy.Constants
 import io.jumpinggoose.unworthy.UnworthyApp
+import io.jumpinggoose.unworthy.core.AssetManager
 import io.jumpinggoose.unworthy.core.CameraController
 import io.jumpinggoose.unworthy.core.Canvas
 import io.jumpinggoose.unworthy.core.CompositeShape
@@ -110,13 +109,13 @@ class Level(game: UnworthyApp) : Scene(game) {
         )
         attackButton = ControlButton(
             radius = Gdx.graphics.ppiX * 0.325f,
-            texture = Texture("UI/attack_button.png").apply { setFilter(Linear, Linear) },
+            texture = AssetManager.loadTextureSync("UI/attack_button.png"),
             buttonColor = Color(0f, 0f, 0f, 0.25f),
             buttonTouchedColor = Color(1f, 1f, 1f, 0.1f)
         )
         jumpButton = ControlButton(
             radius = Gdx.graphics.ppiX * 0.325f,
-            texture = Texture("UI/jump_button.png").apply { setFilter(Linear, Linear) },
+            texture = AssetManager.loadTextureSync("UI/jump_button.png"),
             buttonColor = Color(0f, 0f, 0f, 0.25f),
             buttonTouchedColor = Color(1f, 1f, 1f, 0.1f)
         )

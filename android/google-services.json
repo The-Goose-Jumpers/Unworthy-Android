@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "933701464150",
+    "project_id": "unworthy-e1f41",
+    "storage_bucket": "unworthy-e1f41.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:933701464150:android:c13b6311737dffe9910bf7",
+        "android_client_info": {
+          "package_name": "io.jumpinggoose.unworthy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcOKDe9lXgfayINOZHGXQeqcrt8BRNMzw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

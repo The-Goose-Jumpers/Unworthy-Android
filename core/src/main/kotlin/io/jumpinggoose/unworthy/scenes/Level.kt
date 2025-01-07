@@ -105,16 +105,17 @@ class Level(game: UnworthyApp) : Scene(game) {
         hudCanvas.add(deathCounterText, Vector2(0.865f, 0.95f))
 
         analogControl = ControlAnalog(
-            radius = Gdx.graphics.width * 0.1f
+            radius = Gdx.graphics.width * 0.1f,
+            touchRadius = Gdx.graphics.width * 0.25f
         )
         attackButton = ControlButton(
-            radius = Gdx.graphics.ppiX * 0.325f,
+            radius = Gdx.graphics.ppiX * 0.375f,
             texture = AssetManager.loadTextureSync("UI/attack_button.png"),
             buttonColor = Color(0f, 0f, 0f, 0.25f),
             buttonTouchedColor = Color(1f, 1f, 1f, 0.1f)
         )
         jumpButton = ControlButton(
-            radius = Gdx.graphics.ppiX * 0.325f,
+            radius = Gdx.graphics.ppiX * 0.375f,
             texture = AssetManager.loadTextureSync("UI/jump_button.png"),
             buttonColor = Color(0f, 0f, 0f, 0.25f),
             buttonTouchedColor = Color(1f, 1f, 1f, 0.1f)
@@ -122,8 +123,8 @@ class Level(game: UnworthyApp) : Scene(game) {
 
         if (Gdx.app.type == ApplicationType.Android || Gdx.app.type == ApplicationType.iOS) {
             hudCanvas.add(analogControl, Vector2(0.15f, 0.225f))
-            hudCanvas.add(attackButton, Vector2(0.825f, 0.15f))
-            hudCanvas.add(jumpButton, Vector2(0.925f, 0.25f))
+            hudCanvas.add(attackButton, Vector2(0.825f, 0.155f))
+            hudCanvas.add(jumpButton, Vector2(0.925f, 0.275f))
         }
 
         vignetteCanvas.add(vignette, Vector2(0.5f, 0.5f))

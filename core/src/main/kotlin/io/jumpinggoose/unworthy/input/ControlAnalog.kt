@@ -15,6 +15,7 @@ import kotlin.math.min
 class ControlAnalog(
     position: Vector2 = Vector2(),
     private val radius: Float,
+    touchRadius: Float = radius,
     private val innerCircleRadius: Float = radius * 0.25f,
     private val zoneColor: Color = Color(1f, 1f, 1f, 0.15f),
     private val innerCircleColor: Color = Color(1f, 1f, 1f, 0.25f),
@@ -23,6 +24,7 @@ class ControlAnalog(
 ) : GameObject(position = position), IGameDrawable {
     private val input = Gdx.input
     private val zone = Circle(position, radius)
+    private val touchZone = Circle(position, touchRadius)
     private val innerCirclePosition = position.cpy()
     private val currentZoneColor = zoneColor.cpy()
 
@@ -30,6 +32,7 @@ class ControlAnalog(
         set(value) {
             field = value
             zone.setPosition(value)
+            touchZone.setPosition(value)
             innerCirclePosition.set(value)
         }
 
@@ -70,7 +73,7 @@ class ControlAnalog(
                 touchPosition = world.viewport.unproject(
                     Vector2(input.getX(i).toFloat(), input.getY(i).toFloat())
                 )
-                isTouched = zone.contains(touchPosition)
+                isTouched = touchZone.contains(touchPosition)
                 if (isTouched) {
                     currentPointerId = i
                     break

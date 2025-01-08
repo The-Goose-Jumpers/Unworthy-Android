@@ -115,6 +115,20 @@ que gerencia o progresso do jogador e a classe UnworthyApp que é a classe princ
 <br/>
 
 ## Implementação do Projecto
+O jogo Unworthy foi originalmente desenvolvido em Monogame, portanto quando decidimos criar uma versão Android do mesmo tivemos que recorrer à framework libGTX que já foi referida na estrutura do projeto. Desta forma conseguimos ter um jogo de boa qualidade e bem mais organizado, assim como o que pertendiamos inicialmente.
+## Implementação do Projeto
+
+No desenvolvimento para o projeto foi necessário implementar várias classes para permitir o funcionamento do jogo.
+A classe **UnworthyApp** é uma subclasse de *KtxGame*, que é a classe principal do jogo, responsável 
+por inicializar o jogo e conectar todas as suas partes, trazendo o clico de vida como o game loop.
+Esta gere os "screens", que tipicamente representam diferentes níveis de um jogo mas no nosso caso 
+implementámos uma classe chamada **Scene**, subclasse de KtxScreen,  à qual adicionamos outras funcionalidades, 
+como a capacidade de detetar o input do jogador implementando a interface *KtxInputAdapter*.
+**Scene** é também subclasse de **GameObjectList**, outra classe que implementámos para gerir
+os vários Game Objects de uma cena, delegando-lhes eventos do ciclo do jogo, estes sendo o *update* e o *draw*.
+**GameObjectList** é uma subclasse de **GameObject**, que é a classe onde controlamos os objetos do jogo, sendo
+remover, adicionar, atualizar e desenhar os objetos. Assim chegando a classe base do nosso projeto, o
+**GameObject**. Nesta classe implementamos as interfaces usadas no nosso projeto, **IGameLoop** e **Disposable**.
 
 
 
@@ -159,6 +173,7 @@ mais complicadas devido a conversões das coordenadas necessárias.
 <br/>
 
 ## Conclusão
+Devido ao tempo limitado e hás dificuldades anteriormente referidas, não fomos capazes de implementar certas mecânicas e contéudo como pretendiamos inicialmente. Mesmo que não tenhamos conseguido implementar tudo o que querias, ainda fomos capazes de implementar novas funcionalidades ao jogo que tornaram a jogabilidade mais aplativa, por exemplo o sistema de notificações, a contagem das mortes e enimigos derrotados e a quantidade de tempo jogado, que são guardadas no id do utilizador na base de dados. Apesar das dificuldades, ficámos muito felizes com o resultado e estamos bastante motivados para continuar com o desenvolvimento deste jogo para que futuramente possamos publicá-lo em diversas plataformas.
 
 
 <br/>

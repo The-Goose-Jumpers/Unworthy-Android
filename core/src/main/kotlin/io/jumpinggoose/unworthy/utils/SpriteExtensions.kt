@@ -1,5 +1,6 @@
 package io.jumpinggoose.unworthy.utils
 
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Matrix3
 import com.badlogic.gdx.math.Rectangle
@@ -7,7 +8,7 @@ import com.badlogic.gdx.math.Vector2
 import io.jumpinggoose.unworthy.core.AssetManager
 
 fun Sprite(path: String) : Sprite {
-    return Sprite(AssetManager.loadTextureSync(path))
+    return Sprite(AssetManager.get<Texture>(path))
 }
 
 fun Sprite.setPosition(position: Vector2) {

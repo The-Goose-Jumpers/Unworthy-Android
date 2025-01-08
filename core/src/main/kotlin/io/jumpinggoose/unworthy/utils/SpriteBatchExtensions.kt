@@ -45,10 +45,3 @@ fun SpriteBatch.drawCircle(position: Vector2, radius: Float, color: Color = Colo
 fun SpriteBatch.drawCircle(circle: Circle, color: Color = Color.WHITE, thickness: Float = 1f) {
     DrawingHelper.drawCircle(this, circle.x, circle.y, circle.radius, color, thickness)
 }
-
-fun SpriteBatch.useColor(color: Color, action: () -> Unit) {
-    val prevColor = this.color.cpy()
-    this.setColor(color)
-    action()
-    this.setColor(prevColor)
-}

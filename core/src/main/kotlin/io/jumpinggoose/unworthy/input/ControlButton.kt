@@ -3,6 +3,7 @@ package io.jumpinggoose.unworthy.input
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.Vector2
@@ -10,25 +11,43 @@ import io.jumpinggoose.unworthy.core.Canvas
 import io.jumpinggoose.unworthy.core.GameObject
 import io.jumpinggoose.unworthy.core.IGameDrawable
 import io.jumpinggoose.unworthy.utils.fillCircle
-import io.jumpinggoose.unworthy.utils.useColor
 
 class ControlButton(
     position: Vector2 = Vector2(),
     private val radius: Float,
-    private val texture: Texture? = null,
+    texture: Texture? = null,
     private val buttonColor: Color = Color(1f, 1f, 1f, 0.5f),
     private val buttonTouchedColor: Color = Color(1f, 1f, 1f, 0.75f),
-    private val textureColor: Color? = null,
-    private val textureTouchedColor: Color? = null,
+    private val textureColor: Color = Color.WHITE,
+    private val textureTouchedColor: Color = Color.WHITE,
     private val padding: Float = 0f
 ) : GameObject(position = position), IGameDrawable {
     private val input = Gdx.input
     private val buttonCircle = Circle(position, radius)
+    private val sprite: Sprite?
+
+    init {
+        if (texture != null) {
+            sprite = Sprite(texture)
+            if (textureColor != Color.WHITE) {
+                sprite.color = textureColor
+            }
+            sprite.setBounds(
+                position.x - radius + padding,
+                position.y - radius + padding,
+                radius * 2 - padding * 2,
+                radius * 2 - padding * 2
+            )
+        } else {
+            sprite = null
+        }
+    }
 
     override var position: Vector2 = position
         set(value) {
             field = value
             buttonCircle.setPosition(value)
+            sprite?.setPosition(value.x - radius + padding, value.y - radius + padding)
         }
 
     private var previousState: Boolean = false
@@ -73,17 +92,12 @@ class ControlButton(
     override fun draw(batch: SpriteBatch) {
         val buttonColor = if (currentState) buttonTouchedColor else buttonColor
         batch.fillCircle(buttonCircle, buttonColor)
-        if (texture == null) return
+        if (sprite == null) return
         val textureColor = if (currentState) textureTouchedColor else textureColor
-        batch.useColor(textureColor ?: Color.WHITE) {
-            batch.draw(
-                texture,
-                position.x - radius + padding,
-                position.y - radius + padding,
-                radius * 2 - padding * 2,
-                radius * 2 - padding * 2
-            )
+        if (sprite.color != textureColor) {
+            sprite.color = textureColor
         }
+        sprite.draw(batch)
     }
 
     private val world: Canvas

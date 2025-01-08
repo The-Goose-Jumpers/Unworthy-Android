@@ -1,10 +1,14 @@
 package io.jumpinggoose.unworthy.core.sceneloader
 
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.utils.Json
 import io.jumpinggoose.unworthy.Constants
+import io.jumpinggoose.unworthy.core.AssetManager
 import io.jumpinggoose.unworthy.core.GameObject
 import io.jumpinggoose.unworthy.objects.Terrain
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.joinAll
 import ktx.assets.toInternalFile
 import ktx.json.fromJson
 
@@ -106,5 +110,28 @@ class SceneLoader(sceneName: String) {
             }
         }
         return killTriggers
+    }
+
+    private var scheduledLoadingOfTextureAssets: List<Deferred<Texture>> = emptyList()
+
+    fun scheduleLoadingOfTextureAssets() {
+        var textureAssetPaths = mutableSetOf<String>()
+        for (layer in scene.layers) {
+            for (factory in layer.objects) {
+                factory.textureAssetPath?.let { path ->
+                    textureAssetPaths.add(path)
+                }
+            }
+        }
+        var assets = mutableListOf<Deferred<Texture>>()
+        textureAssetPaths.forEach { path ->
+            assets.add(AssetManager.loadTextureAsync(path))
+        }
+        scheduledLoadingOfTextureAssets = assets
+    }
+
+    suspend fun loadTextureAssets() {
+        scheduledLoadingOfTextureAssets.joinAll()
+        scheduledLoadingOfTextureAssets = emptyList()
     }
 }

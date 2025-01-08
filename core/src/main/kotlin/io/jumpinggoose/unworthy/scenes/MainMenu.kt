@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import io.jumpinggoose.unworthy.Constants
 import io.jumpinggoose.unworthy.UnworthyApp
+import io.jumpinggoose.unworthy.core.AssetManager
 import io.jumpinggoose.unworthy.core.Canvas
 import io.jumpinggoose.unworthy.core.Scene
 import io.jumpinggoose.unworthy.core.SpriteGameObject
@@ -26,36 +27,44 @@ class MainMenu(game: UnworthyApp) : Scene(game) {
 
     private val canvas = Canvas(viewport)
 
-    private val titleSprite = SpriteGameObject("title", "UI/title.png")
+    private val fadeEffect = FadeEffect()
+    private val stars = Stars(width = Constants.TARGET_WIDTH, height = Constants.TARGET_HEIGHT)
 
-    private val characterSprite = SpriteGameObject("character", "UI/character_fall.png")
+    private val titleSprite: SpriteGameObject
+    private val characterSprite: SpriteGameObject
+    private val tapToBeginText: SpriteGameObject
+    private val playTimeText = Text("Play Time: 0:00", game.font, Vector2(1f, 1f))
+
     private val characterStartPosition: Vector2
     private val characterEndPosition: Vector2
+
     private var isFallingAnimationInProgress = false
     private var animationStartTime = 0L
     private var animationDuration = 5000f
-    private val fadeEffect = FadeEffect()
-
-    private val tapToBeginText = SpriteGameObject("tapToBegin", "UI/taptobegin.png")
-    var tapToBeginTextTime = 0f
-
-    private val playTimeText = Text("Play Time: 0:00", game.font)
-
-    private val stars = Stars(width = Constants.TARGET_WIDTH, height = Constants.TARGET_HEIGHT)
+    private var tapToBeginTextTime = 0f
 
     val gyroscopeAvailable = Gdx.input.isPeripheralAvailable(Peripheral.Gyroscope)
 
     init {
+        AssetManager.loadTextureSync("UI/title.png")
+        AssetManager.loadTextureSync("UI/character_fall.png")
+        AssetManager.loadTextureSync("UI/taptobegin.png")
+        titleSprite = SpriteGameObject("title", "UI/title.png")
+        characterSprite = SpriteGameObject("character", "UI/character_fall.png")
+        tapToBeginText = SpriteGameObject("tapToBegin", "UI/taptobegin.png")
+
         canvas.add(stars, Vector2(0.5f, 0.5f))
         canvas.add(titleSprite, Vector2(0.3f, 0.75f))
         canvas.add(characterSprite, Vector2(0.75f, 0.5f))
         canvas.add(tapToBeginText, Vector2(0.2f, 0.25f))
-        canvas.add(playTimeText, Vector2(0.80f, 0.95f))
+        canvas.add(playTimeText, Vector2(0.975f, 0.995f))
+
         characterStartPosition = characterSprite.position.cpy()
         characterEndPosition = Vector2(characterStartPosition.x, -characterSprite.sprite.height)
     }
 
     override fun show() {
+        fadeEffect.start(1500, true)
         game.bgm.play()
     }
 
@@ -93,7 +102,7 @@ class MainMenu(game: UnworthyApp) : Scene(game) {
             if (animationStartTime == 0L) {
                 animationStartTime = System.currentTimeMillis()
                 fadeEffect.start(1500, false) {
-                    game.setScreen<Level>()
+                    game.setScene<Level>()
                 }
             }
 

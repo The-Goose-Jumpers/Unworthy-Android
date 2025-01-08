@@ -16,8 +16,10 @@ abstract class Scene(
     val camera: OrthographicCamera
         get() = viewport.camera as OrthographicCamera
 
+    open fun load(onCompletion: () -> Unit) {}
+
     open fun draw() {
-        viewport.apply()
+        // viewport.apply()
         game.batch.use(camera) {
             super<GameObjectList>.draw(it)
         }

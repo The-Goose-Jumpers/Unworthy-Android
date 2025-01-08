@@ -42,25 +42,23 @@ class UnworthyApp(
 
         val game = this
         KtxAsync.launch {
-            assetManager.apply {
-                bgm = load<Music>("Sounds/Midnight_Dreams.ogg").apply {
-                    isLooping = true
-                    volume = 0.5f
-                }
-                font = load<BitmapFont>("Fonts/chiller.fnt").apply {
-                    data.setScale(0.5f)
-                }
-                addScreen(MainMenu(game))
-                addScreen(Level(game))
-                setScreen<MainMenu>()
-                Gdx.input.inputProcessor = game
+            bgm = assetManager.load<Music>("Sounds/Midnight_Dreams.ogg").apply {
+                isLooping = true
+                volume = 0.5f
             }
+            font = assetManager.load<BitmapFont>("Fonts/chiller.fnt").apply {
+                data.setScale(0.5f)
+            }
+            addScreen(MainMenu(game))
+            setScreen<MainMenu>()
+            addScreen(Level(game))
+            Gdx.input.inputProcessor = game
         }
 
         playerDataRepository.getData(
             onSuccess = { data ->
                 playerData = data
-                Gdx.app.log("UnworthyApp", "Got player data: $playerData")
+                Gdx.app.debug("UnworthyApp", "Got player data: $playerData")
             },
             onFailure = { exception ->
                 Gdx.app.error("UnworthyApp", "Failed to load player data", exception)
@@ -68,11 +66,19 @@ class UnworthyApp(
         )
     }
 
+    inline fun <reified T : Scene> setScene() {
+        Gdx.app.debug("UnworthyApp", "Loading scene ${T::class.simpleName}")
+        getScreen<T>().load {
+            Gdx.app.debug("UnworthyApp", "Scene ${T::class.simpleName} loaded")
+            setScreen<T>()
+        }
+    }
+
     fun updatePlayerData() {
         playerDataRepository.setData(
             playerData,
             onSuccess = {
-                Gdx.app.log("UnworthyApp", "Player data saved successfully")
+                Gdx.app.debug("UnworthyApp", "Player data saved successfully")
             },
             onFailure = { exception ->
                 Gdx.app.error("UnworthyApp", "Failed to save player data", exception)
@@ -80,8 +86,16 @@ class UnworthyApp(
         )
     }
 
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return (currentScreen as Scene).touchDown(screenX, screenY, pointer, button)
+    }
+
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         return (currentScreen as Scene).touchUp(screenX, screenY, pointer, button)
+    }
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        return (currentScreen as Scene).touchDragged(screenX, screenY, pointer)
     }
 
     override fun dispose() {

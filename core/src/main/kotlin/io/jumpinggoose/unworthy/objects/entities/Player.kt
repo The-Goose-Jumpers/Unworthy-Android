@@ -194,7 +194,7 @@ class Player(
     }
 
     private val attackBounds: Rectangle
-        get() = attackSprite.getBoundingRectangle(globalPosition + attackEffectOffset, Vector2(0.75f, 0.75f))
+        get() = attackSprite.getBoundingRectangle(globalPosition + attackEffectOffset, Vector2(0.9f, 0.9f))
 
     private fun updateFacingDirection() {
         if (isFacingRight && horizontalMovement < 0f || !isFacingRight && horizontalMovement > 0f) {
@@ -297,6 +297,7 @@ class Player(
     }
 
     override fun takeDamage(source: GameObject, damage: Int, impactForce: Float) {
+        level.onAnyInteraction()
         if (invincibilityTimer > 0) return
         health -= damage
         if (isDead) {

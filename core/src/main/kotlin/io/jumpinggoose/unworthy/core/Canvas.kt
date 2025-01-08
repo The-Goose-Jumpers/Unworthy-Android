@@ -29,7 +29,7 @@ class Canvas(
     }
 
     override fun draw(batch: SpriteBatch) {
-        viewport.apply(true)
+        // viewport.apply(true)
         batch.use(camera) {
             super.draw(batch)
         }

@@ -3,7 +3,10 @@ package io.jumpinggoose.unworthy.scenes
 import com.badlogic.gdx.Application.ApplicationType
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.glutils.ShaderProgram
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.ExtendViewport
@@ -28,6 +31,10 @@ import io.jumpinggoose.unworthy.objects.entities.IEntity
 import io.jumpinggoose.unworthy.objects.entities.Player
 import io.jumpinggoose.unworthy.utils.drawRectangle
 import io.jumpinggoose.unworthy.utils.fillRectangle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import ktx.async.KtxAsync
 import ktx.graphics.LetterboxingViewport
 import ktx.graphics.use
 
@@ -38,13 +45,15 @@ class Level(game: UnworthyApp) : Scene(game) {
         Constants.TARGET_HEIGHT.toFloat()
     )
 
+    private val sceneLoader = SceneLoader("level")
+
     private var startTime: Long = 0
     private val fadeEffect = FadeEffect()
-    private val vignette = SpriteGameObject("vignette", "UI/vignette.png")
+    private lateinit var vignette: SpriteGameObject
     private var vignetteColor = Color.BLACK.cpy()
     private var currentLerpTime = 0f
     private var isFlashingVignetteRed = false
-    private val player: Player
+    private lateinit var player: Player
 
     private val vignetteCanvas = Canvas(FillViewport(
         Constants.TARGET_WIDTH.toFloat(),
@@ -56,44 +65,73 @@ class Level(game: UnworthyApp) : Scene(game) {
         Gdx.graphics.width / Gdx.graphics.height.toFloat()
     ))
     private val uiBatch = SpriteBatch()
+    private var timeSinceLastInteraction = 0f
+    private var hudAlpha = 1f
+    private val alphaShaderProgram: ShaderProgram = ShaderProgram(
+        Gdx.files.internal("Shaders/alpha.vert"),
+        Gdx.files.internal("Shaders/alpha.frag")
+    )
 
     val boundaries = CompositeShape()
     val killTriggers = CompositeShape()
-    val cameraController: CameraController
-    val terrain: Terrain
+    lateinit var cameraController: CameraController
+    lateinit var terrain: Terrain
     val enemies = mutableListOf<IEntity>()
 
-    val deathCounterText = Text("Deaths: 0", game.font)
+    val statsCounterText = Text("Kills: 0  Deaths: 0", game.font, Vector2(1f, 1f))
 
-    val analogControl: ControlAnalog
-    val attackButton: ControlButton
-    val jumpButton: ControlButton
+    lateinit var analogControl: ControlAnalog
+    lateinit var attackButton: ControlButton
+    lateinit var jumpButton: ControlButton
+    lateinit var pauseButton: ControlButton
+
+    private var otherTextureAssets = listOf(
+        AssetManager.loadTextureAsync("UI/vignette.png"),
+        AssetManager.loadTextureAsync("UI/life_clock.png"),
+        AssetManager.loadTextureAsync("UI/attack_button.png"),
+        AssetManager.loadTextureAsync("UI/jump_button.png"),
+        AssetManager.loadTextureAsync("UI/pause_button.png")
+    )
 
     init {
         viewport.update(Gdx.graphics.width, Gdx.graphics.height, true)
+        sceneLoader.scheduleLoadingOfTextureAssets()
+        alphaShaderProgram.bind()
+        alphaShaderProgram.setUniformf("u_alpha", 1f)
+    }
 
-        val scene = SceneLoader("level")
-        scene.createObjects().forEach { add(it) }
+    override fun load(onCompletion: () -> Unit) {
+        KtxAsync.launch {
+            sceneLoader.loadTextureAssets()
+            otherTextureAssets.joinAll()
+            createGameObjects()
+            delay(200)
+            onCompletion()
+        }
+    }
+
+    private fun createGameObjects() {
+        sceneLoader.createObjects().forEach { add(it) }
         terrain = findGameObjectById("Terrain") as Terrain
 
         cameraController = CameraController(camera)
-        scene.getCameraBounds().forEach { bounds ->
+        sceneLoader.getCameraBounds().forEach { bounds ->
             cameraController.addBounds(bounds)
         }
 
-        scene.getLevelBoundaries().forEach { bounds ->
+        sceneLoader.getLevelBoundaries().forEach { bounds ->
             boundaries.add(bounds)
         }
 
-        scene.getKillTriggers().forEach { bounds ->
+        sceneLoader.getKillTriggers().forEach { bounds ->
             killTriggers.add(bounds)
         }
 
-        val playerFactory = scene.getPlayer() ?: throw Exception("Player not found in scene.")
+        val playerFactory = sceneLoader.getPlayer() ?: throw Exception("Player not found in scene.")
         player = Player(this, playerFactory.position)
         add(player)
 
-        scene.getEntities().forEach { obj ->
+        sceneLoader.getEntities().forEach { obj ->
             val entity = obj.create() ?: return@forEach
             add(entity)
             if (entity is IEntity && !entity.isFriendly) {
@@ -102,31 +140,41 @@ class Level(game: UnworthyApp) : Scene(game) {
         }
 
         hudCanvas.add(HPIndicator("HPIndicator", player), Vector2(0.05f, 0.95f))
-        hudCanvas.add(deathCounterText, Vector2(0.865f, 0.95f))
+        hudCanvas.add(statsCounterText, Vector2(0.9f, 0.995f))
 
         analogControl = ControlAnalog(
-            radius = Gdx.graphics.width * 0.1f,
-            touchRadius = Gdx.graphics.width * 0.25f
+            radius = 300f,
+            touchRadius = 750f,
+            fadeOutWhenIdle = false
         )
         attackButton = ControlButton(
-            radius = Gdx.graphics.ppiX * 0.375f,
-            texture = AssetManager.loadTextureSync("UI/attack_button.png"),
+            radius = 175f,
+            texture = AssetManager.get<Texture>("UI/attack_button.png"),
             buttonColor = Color(0f, 0f, 0f, 0.25f),
             buttonTouchedColor = Color(1f, 1f, 1f, 0.1f)
         )
         jumpButton = ControlButton(
-            radius = Gdx.graphics.ppiX * 0.375f,
-            texture = AssetManager.loadTextureSync("UI/jump_button.png"),
+            radius = 175f,
+            texture = AssetManager.get<Texture>("UI/jump_button.png"),
             buttonColor = Color(0f, 0f, 0f, 0.25f),
             buttonTouchedColor = Color(1f, 1f, 1f, 0.1f)
+        )
+        pauseButton = ControlButton(
+            radius = 80f,
+            texture = AssetManager.get<Texture>("UI/pause_button.png"),
+            textureTouchedColor = Color(0xdd100eff.toInt()),
+            buttonColor = Color(0f, 0f, 0f, 0.25f),
+            buttonTouchedColor = Color(0f, 0f, 0f, 0.25f)
         )
 
         if (Gdx.app.type == ApplicationType.Android || Gdx.app.type == ApplicationType.iOS) {
             hudCanvas.add(analogControl, Vector2(0.15f, 0.225f))
             hudCanvas.add(attackButton, Vector2(0.825f, 0.155f))
             hudCanvas.add(jumpButton, Vector2(0.925f, 0.275f))
+            hudCanvas.add(pauseButton, Vector2(0.95f, 0.925f))
         }
 
+        vignette = SpriteGameObject("Vignette", "UI/vignette.png")
         vignetteCanvas.add(vignette, Vector2(0.5f, 0.5f))
     }
 
@@ -169,8 +217,16 @@ class Level(game: UnworthyApp) : Scene(game) {
     }
 
     override fun update(delta: Float) {
+        if (timeSinceLastInteraction >= 10f) {
+            hudAlpha = MathUtils.lerp(hudAlpha, 0f, 1.5f * delta)
+            hudAlpha.coerceIn(0f, 1f)
+            alphaShaderProgram.setUniformf("u_alpha", hudAlpha)
+        } else {
+            timeSinceLastInteraction += delta
+        }
+
         hudCanvas.update(delta)
-        deathCounterText.text = "Deaths: ${game.playerData.deaths}"
+        statsCounterText.text = "Kills: ${game.playerData.enemiesDefeated + player.killCount}  Deaths: ${game.playerData.deaths}"
         fadeEffect.update(delta)
         super.update(delta)
 
@@ -222,10 +278,39 @@ class Level(game: UnworthyApp) : Scene(game) {
     private fun drawUI() {
         // Draw vignette
         vignetteCanvas.draw(uiBatch)
+
         // Draw HUD elements
-        hudCanvas.draw(uiBatch)
+        if (timeSinceLastInteraction >= 10f) {
+            uiBatch.shader = alphaShaderProgram
+            hudCanvas.draw(uiBatch)
+            uiBatch.shader = null
+        } else {
+            hudCanvas.draw(uiBatch)
+        }
+
         // Draw fade effect
         fadeEffect.draw(uiBatch)
+    }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        onAnyInteraction()
+        return false
+    }
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        onAnyInteraction()
+        return false
+    }
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        onAnyInteraction()
+        return false
+    }
+
+    fun onAnyInteraction() {
+        alphaShaderProgram.setUniformf("u_alpha", 1f)
+        timeSinceLastInteraction = 0f
+        hudAlpha = 1f
     }
 
     override fun resize(width: Int, height: Int) {
@@ -238,6 +323,7 @@ class Level(game: UnworthyApp) : Scene(game) {
     override fun dispose() {
         vignetteCanvas.dispose()
         hudCanvas.dispose()
+        alphaShaderProgram.dispose()
         super.dispose()
     }
 }

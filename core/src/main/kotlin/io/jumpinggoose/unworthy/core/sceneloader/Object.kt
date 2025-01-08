@@ -74,6 +74,9 @@ data class Object(
     val isFlippedHorizontally: Boolean
         get() = properties.any { it.name == "FlipX" && it.value == "true" }
 
+    val textureAssetPath: String?
+        get() = typeToAsset[type]
+
     fun create(): GameObject? {
         return when (type) {
             "Flye" -> Flye(position)

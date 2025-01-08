@@ -93,8 +93,22 @@ início do jogo o jogador deverá derrotar todos os inimigos.
 </p>
 
 ## Estrutura do Projecto
+Para desenvolver o nosso jogo decidimos usar o libGDX, uma framework para desenvolvimento de jogos para diversas plataformas.
+Ao configuramos o projeto libGDX uma pasta core é criada, nesta encontra-se  o código comum a todas as plataformas a também maior 
+parte da lógica do jogo, para além da pasta core é também criada uma pasta para cada uma das outras plataformas, neste caso só nos interessa, o Android. 
+Na pasta Android, é onde estão localizadas classes que utilizamos para a gestão de dados e inicialização do jogo em android estas classes são responsáveis pelo bom funcionamento do na plataforma Android. 
+Dentro da pasta Core criamos seis subpastas, core, input, models, objects, e utils, para além destas temos a classe UnworthyApp, 
+o objeto constantes e um repositório com a PlayerData que não pertencem a nenhum pasta em específico. 
+Escolhemos este método de organização para facilitar a navegação do projeto, tornando-a mais intuitiva. 
 
-
+* **core** : Nesta pasta core temos classes que gerem as cenas, animações, objetos do jogo e a renderização do mesmo, para além destas classes temos também interfaces que contêm funções responsãveis pelo desenho de sprites, colisão e pela lógica do loop do jogo. 
+* **input** : Dentro da pasta iput temos classes que gerem o toque do jogador no ecrã e criam os controles do jogo.
+* **models** : Esta pasta contém o nosso modelo de dados.
+* **objects** : A pasta objects guarda os gameobjects como o background, plataformas, chão, assets da UI e as entidades.
+* **scenes** : Nesta pasta temos as classes Level e MainMenu que lidam com os diferentes estados do jogo e definem o que acontece durante estes.
+* **utils** : Esta pasta contém funções e extensões para várias classes que auxiliam diversas operações ao longo do projeto.
+Fora das subpastas temos ainda o objecto Constants que armazena toda a informação fixa do jogo, a interface PlayerDataRepository
+que gerencia o progresso do jogador e a classe UnworthyApp que é a classe principal do jogo, responsábel por inicializa-lo e conectar todas as suas partes
 
 
 ## Implementação do Projecto

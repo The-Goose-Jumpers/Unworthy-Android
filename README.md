@@ -92,7 +92,9 @@ início do jogo o jogador deverá derrotar todos os inimigos.
 <picture><img alt="Player" width="240" src="gh-images/PlayerAnimationDemo.gif"></picture>
 </p>
 
-## Estrutura do Projecto
+<br/>
+
+## Estrutura do Projeto
 Para desenvolver o nosso jogo decidimos usar o libGDX, uma framework para desenvolvimento de jogos para diversas plataformas.
 Ao configuramos o projeto libGDX uma pasta core é criada, nesta encontra-se  o código comum a todas as plataformas a também maior 
 parte da lógica do jogo, para além da pasta core é também criada uma pasta para cada uma das outras plataformas, neste caso só nos interessa, o Android. 
@@ -102,27 +104,39 @@ o objeto constantes e um repositório com a PlayerData que não pertencem a nenh
 Escolhemos este método de organização para facilitar a navegação do projeto, tornando-a mais intuitiva. 
 
 * **core** : Nesta pasta core temos classes que gerem as cenas, animações, objetos do jogo e a renderização do mesmo, para além destas classes temos também interfaces que contêm funções responsãveis pelo desenho de sprites, colisão e pela lógica do loop do jogo. 
-* **input** : Dentro da pasta iput temos classes que gerem o toque do jogador no ecrã e criam os controles do jogo.
+* **input** : Dentro da pasta imput temos classes que gerem o toque do jogador no ecrã e criam os controles do jogo.
 * **models** : Esta pasta contém o nosso modelo de dados.
 * **objects** : A pasta objects guarda os gameobjects como o background, plataformas, chão, assets da UI e as entidades.
 * **scenes** : Nesta pasta temos as classes Level e MainMenu que lidam com os diferentes estados do jogo e definem o que acontece durante estes.
 * **utils** : Esta pasta contém funções e extensões para várias classes que auxiliam diversas operações ao longo do projeto.
 Fora das subpastas temos ainda o objecto Constants que armazena toda a informação fixa do jogo, a interface PlayerDataRepository
-que gerencia o progresso do jogador e a classe UnworthyApp que é a classe principal do jogo, responsábel por inicializa-lo e conectar todas as suas partes
+que gerencia o progresso do jogador e a classe UnworthyApp que é a classe principal do jogo, responsável por inicializa-lo e conectar todas as suas partes.
 
+<br/>
 
 ## Implementação do Projecto
 
 
 
+<br/>
 
 ## Modelo de Dados
+Em relação a modelo de dados decidimos criar um ficheiro **AndroidPlayerData** onde recolhemos informação sobre
+o id do utilizador, como a informação do jogador fornecida pelo ficheiro **PlayerData**, onde recolhemos o tempo de jogo,
+a quantidade de inimigos derrotados, como a quantidade de vezes que o jogador morreu. 
+Desta informação recolhida, manda-mos esta informação para a nossa base de dados que criamos utilizando a Firebase, 
+de forma quando o jogador abre o jogo, acede a informação recolhida, a partir do id recolhido, e consegue
+desfrutar do jogo sem perda de informação de sessão por sessão.
 
+<br/>
 
 ## Tecnologias utilizadas
+### Ferramentas de Desenvolvimento
 * [LibGDX](https://libgdx.com): Framework de desenvolvimento de jogos multiplataforma.
 * [KTX](https://libktx.github.io/): Extensão do LibGDX que facilita o desenvolvimento de jogos em Kotlin.
 * [Firebase](https://firebase.google.com): Plataforma de armazenamento de dados.
+
+### Software 
 * [SpriteFactory](https://github.com/craftworkgames/SpriteFactory): Ferramenta dos desenvolvedores do MonoGame.Extended
   que permite preparar spritesheets e animações para serem importadas pelo Content Pipeline do MonoGame.
 * [Tiled](https://www.mapeditor.org/): Editor de mapas.
@@ -133,7 +147,14 @@ que gerencia o progresso do jogador e a classe UnworthyApp que é a classe princ
 <br/>
 
 ## Dificuldades encontradas
-
+Ao longo do desenvolvimento do projeto, *Unworthy*, deparamo-nos com algumas dificuldades, mas a que destacou-se mais
+foi a utilização do LibGDX e os vários sistemas de coordenadas que utiliza. libGDX, ao contrário do canvas do Android,
+que usa o sistema *y-down*, libGDX usa ambos sistemas de coordenadas, *y-down* e *y-up*, dependendo da situação.
+Em relação ao toque no ecrã, onde se deteta onde o utilizador tocou, usa um sistema y-down, onde o centro de ecrã, (0,0),
+encontrasse no canto superior esquerdo do ecrã, enquanto em relação ao carregar sprites e imagens no ecrã,
+usa um sistema y-up, onde o centro do ecrã, encontra-se no canto inferior esquerdo do ecrã. 
+Desta forma tornou a implementação de certas funcionalidades necessárias para a funcionalidade da aplicação
+mais complicadas devido a conversões das coordenadas necessárias. 
 
 <br/>
 

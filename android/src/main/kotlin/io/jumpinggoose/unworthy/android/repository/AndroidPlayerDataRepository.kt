@@ -6,7 +6,6 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 import io.jumpinggoose.unworthy.PlayerDataRepository
-import io.jumpinggoose.unworthy.android.repository.models.AndroidPlayerData
 import io.jumpinggoose.unworthy.models.PlayerData
 
 class AndroidPlayerDataRepository : PlayerDataRepository {
@@ -40,15 +39,19 @@ class AndroidPlayerDataRepository : PlayerDataRepository {
                 return@getUser
             }
             db.collection("playerData")
-                .whereEqualTo("owner", user.uid)
-                .addSnapshotListener { documents, exception ->
+                .document(user.uid)
+                .addSnapshotListener { document, exception ->
                     if (exception != null) {
                         onFailure(exception)
-                    } else if (documents == null || documents.isEmpty) {
+                    } else if (document == null) {
                         onSuccess(PlayerData())
                     } else {
-                        val androidPlayerData = documents.first().toObject<AndroidPlayerData>()
-                        onSuccess(androidPlayerData.data)
+                        val playerData = document.toObject<PlayerData>()
+                        if (playerData == null) {
+                            onFailure(Exception("Failed to parse player data."))
+                        } else {
+                            onSuccess(playerData)
+                        }
                     }
                 }
         }
@@ -64,31 +67,11 @@ class AndroidPlayerDataRepository : PlayerDataRepository {
                 onFailure(Exception("User not authenticated."))
                 return@getUser
             }
-            val androidPlayerData = AndroidPlayerData(user.uid, data)
             db.collection("playerData")
-                .whereEqualTo("owner", user.uid)
-                .get()
-                .addOnSuccessListener { documents ->
-                    if (documents.isEmpty) {
-                        db.collection("playerData")
-                            .add(androidPlayerData)
-                            .addOnSuccessListener {
-                                onSuccess()
-                            }
-                            .addOnFailureListener { exception ->
-                                onFailure(exception)
-                            }
-                    } else {
-                        db.collection("playerData")
-                            .document(documents.first().id)
-                            .set(androidPlayerData)
-                            .addOnSuccessListener {
-                                onSuccess()
-                            }
-                            .addOnFailureListener { exception ->
-                                onFailure(exception)
-                            }
-                    }
+                .document(user.uid)
+                .set(data)
+                .addOnSuccessListener {
+                    onSuccess()
                 }
                 .addOnFailureListener { exception ->
                     onFailure(exception)

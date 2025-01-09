@@ -104,6 +104,8 @@ e as cenas (Scenes) em si.
 Esta estrutura permite-nos facilmente criar novos game objects, e gerir o ciclo de vida
 do jogo de forma organizada.
 
+Organizámos os vários ficheros do projeto da seguinte forma:
+
 * **core**: Contém classes que gerem as cenas, animações, game objects, etc.
 * **input**: Contém game objects capazes de detetar o input do jogador, como botões e "analógico"
   on-screen.

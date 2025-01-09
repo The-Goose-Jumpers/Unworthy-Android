@@ -76,19 +76,7 @@ desenho digital, com todas as animações feitas a 12 frames por segundo.
 
 <br/>
 
-## Estrutura do Projeto
-
-* **core**: Contém classes que gerem as cenas, animações, game objects, etc.
-* **input**: Contém game objects capazes de detetar o input do jogador, como botões e "analógico"
-  on-screen.
-* **models**: Contém modelos de dados, como o `PlayerData`.
-* **objects**: Contém os vários game objects do jogo, como terreno, texto, inimigos, o jogador, etc.
-* **scenes**: Contém as diferentes cenas (níveis / estados) do jogo.
-* **utils**: Contém utilidades e extensões para várias classes que auxiliam diversas operações.
-
-<br/>
-
-## Implementação do Projeto
+## Implementação e Estrutura do Projeto
 
 No desenvolvimento do projeto foi necessário implementar várias classes para permitir o
 funcionamento do jogo.
@@ -115,6 +103,14 @@ e as cenas (Scenes) em si.
 
 Esta estrutura permite-nos facilmente criar novos game objects, e gerir o ciclo de vida
 do jogo de forma organizada.
+
+* **core**: Contém classes que gerem as cenas, animações, game objects, etc.
+* **input**: Contém game objects capazes de detetar o input do jogador, como botões e "analógico"
+  on-screen.
+* **models**: Contém modelos de dados, como o `PlayerData`.
+* **objects**: Contém os vários game objects do jogo, como terreno, texto, inimigos, o jogador, etc.
+* **scenes**: Contém as diferentes cenas (níveis / estados) do jogo.
+* **utils**: Contém utilidades e extensões para várias classes que auxiliam diversas operações.
 
 <br/>
 

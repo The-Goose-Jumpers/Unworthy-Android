@@ -118,7 +118,7 @@ Organizámos os vários ficheros do projeto da seguinte forma:
 
 ## Modelo de Dados
 
-Trando-se de um jogo relativamente simples, o modelo de dados que implementamos é também bastante
+Tratando-se de um jogo relativamente simples, o modelo de dados que implementamos é também bastante
 simples.
 
 Temos apenas uma data class `PlayerData` que descreve algumas informações sobre o jogador, como o

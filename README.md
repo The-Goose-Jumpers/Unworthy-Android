@@ -40,7 +40,6 @@ desenho digital, com todas as animações feitas a 12 frames por segundo.
 
 ### Arte Conceptual
 
-<br/>
 <p>
 <picture><img alt="ConceptArt" width="400" align="left" src="gh-images/Map.png"></picture>
 <picture><img alt="ConceptArt" width="400" align="left" src="gh-images/MobsArt.png"></picture>
@@ -93,14 +92,16 @@ desenho digital, com todas as animações feitas a 12 frames por segundo.
 
 No desenvolvimento do projeto foi necessário implementar várias classes para permitir o
 funcionamento do jogo.
+
 A classe `UnworthyApp` é uma subclasse de `KtxGame`, e é a classe principal do jogo, onde arranca
 o ciclo de vida do jogo.
 Esta class gere "Screens", que tipicamente representam diferentes níveis de um jogo, 
 mas no nosso caso implementámos uma classe chamada `Scene`, subclasse de `KtxScreen`, à qual
 acrescentamos outras funcionalidades, como a capacidade de detetar o input do jogador implementando
 a interface `KtxInputAdapter`.
+
 `Scene` é também subclasse de `GameObjectList`, outra classe que implementámos para gerir
-os vários Game Objects de uma cena, delegando-lhes eventos do ciclo do vida do jogo, como o `update`
+os vários game objects de uma cena, delegando-lhes eventos do ciclo de vida do jogo, como o `update`
 e o `draw`.
 
 <br/>

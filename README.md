@@ -104,15 +104,30 @@ a interface `KtxInputAdapter`.
 os vários game objects de uma cena, delegando-lhes eventos do ciclo de vida do jogo, como o `update`
 e o `draw`.
 
+`GameObjectList` consiste num game object composto por vários outros game objects, e é responsável
+por delegar eventos do ciclo de vida do jogo aos seus game objects filhos.
+
+`GameObject` é uma class base de todos os game objects do jogo.
+
+Como podemos ver, com esta estrutura, temos um sistema em que praticamente tudo é um Game Object,
+desde o jogador, aos inimigos, ao terreno, e até mesmo os botões que o jogador usa para interagir 
+e as cenas (Scenes) em si.
+
+Esta estrutura permite-nos facilmente criar novos game objects, e gerir o ciclo de vida
+do jogo de forma organizada.
+
 <br/>
 
 ## Modelo de Dados
 
 Trando-se de um jogo relativamente simples, o modelo de dados que implementamos é também bastante
-simples. Temos apenas uma data class `PlayerData` que descreve algumas informações sobre o
-jogador, como o tempo de jogo, a quantidade de inimigos derrotados, e a quantidade de vezes que o
-jogador morreu. Assim, usamos esta class para armazenar a informação do jogador, a qual é armazenada
-na base de dados Firebase Firestore para que possa ser posteriormente consultada.
+simples.
+
+Temos apenas uma data class `PlayerData` que descreve algumas informações sobre o jogador, como o
+tempo de jogo, a quantidade de inimigos derrotados, e a quantidade de vezes que o jogador morreu.
+
+Assim, usamos esta class para armazenar a informação do jogador, a qual é armazenada na base de
+dados **Firebase Firestore** para que possa ser posteriormente consultada.
 ```kotlin
 data class PlayerData(
     var totalPlaytime: Long = 0,
@@ -127,8 +142,8 @@ data class PlayerData(
 
 ### Ferramentas de Desenvolvimento
 
-* [libGDX](https://libgdx.com): Framework de desenvolvimento de jogos multiplataforma.
-* [KTX](https://libktx.github.io/): Extensão para o libGDX que facilita o workflow do mesmo em
+* [libGDX](https://libGDX.com): Framework de desenvolvimento de jogos multiplataforma.
+* [KTX](https://libktx.github.io/): Extensão para o **libGDX** que facilita o workflow do mesmo em
   Kotlin.
 * [Firebase](https://firebase.google.com): Toolset de desenvolvimento de aplicações móveis e web.
 
@@ -146,12 +161,18 @@ data class PlayerData(
 ## Dificuldades encontradas
 
 Ao longo do desenvolvimento do projeto, deparamo-nos com algumas dificuldades, mas a que mais
-se destacou foram os vários sistemas de coordenadas utilizados pelo libGDX.
-Dependendo do contexto, o libGDX usa diferentes sistemas de coordenadas, o que foi inesperado e
-confuso. Por exemplo, em relação ao toque no ecrã, quando pretendemos detetar onde o jogador tocou,
+se destacou foram os vários sistemas de coordenadas utilizados pelo **libGDX**.
+
+Dependendo do contexto, o **libGDX** usa diferentes sistemas de coordenadas, o que foi inesperado e
+confuso.
+
+Por exemplo, em relação ao toque no ecrã, quando pretendemos detetar onde o jogador tocou,
 o sistema de coordenadas é **y-down**, isto é, o ponto de origem (0, 0) é o canto superior esquerdo
-do ecrã. Por outro lado, o sistema de coordenadas no que toca ao desenho de texturas no ecrã,
+do ecrã.
+
+Por outro lado, o sistema de coordenadas no que toca ao desenho de texturas no ecrã,
 é um sistema **y-up**, onde o ponto de origem (0, 0) é o canto inferior esquerdo do ecrã.
+
 Esta diferença de sistemas de coordenadas causou-nos alguma confusão e bugs inesperados, o que
 atrasou o desenvolvimento do projeto.
 
@@ -160,9 +181,12 @@ atrasou o desenvolvimento do projeto.
 ## Conclusão
 
 Apesar de presentemente se tratar de um protótipo, este jogo é um projeto que nos orgulhamos
-bastante. Através dele, conseguimos desenvolver várias competências, e permitiu-nos explorar o
-desenvolvimento de jogos para plataformas móveis, bem como o uso de ferramentas como o libGDX e
-o Firebase.
+bastante.
+
+Através dele, conseguimos desenvolver várias competências, e permitiu-nos explorar o
+desenvolvimento de jogos para plataformas móveis, bem como o uso de ferramentas como o **libGDX** e
+o **Firebase**.
+
 Esperamos continuar o desenvolvimento deste jogo para que possamos futuramente publicá-lo.
 
 <br/>

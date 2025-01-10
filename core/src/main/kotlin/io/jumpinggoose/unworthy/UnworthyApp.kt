@@ -46,9 +46,7 @@ class UnworthyApp(
                 isLooping = true
                 volume = 0.5f
             }
-            font = assetManager.load<BitmapFont>("Fonts/chiller.fnt").apply {
-                data.setScale(0.5f)
-            }
+            font = assetManager.loadFreeTypeFont("Fonts/chiller.ttf")
             addScreen(MainMenu(game))
             setScreen<MainMenu>()
             addScreen(Level(game))
